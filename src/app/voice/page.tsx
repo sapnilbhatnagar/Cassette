@@ -181,19 +181,12 @@ export default function VoicePage() {
   }
 
   return (
-    <div className="flex-1 flex flex-row overflow-hidden">
+    <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
 
       {/* ---- Left column: voice list ---- */}
-      <div
-        className="flex flex-col overflow-hidden"
-        style={{
-          flex: "1 1 0",
-          minWidth: "400px",
-          borderRight: "1px solid #2A2B35",
-        }}
-      >
+      <div className="flex flex-col md:flex-1 md:min-w-[400px] border-b md:border-b-0 md:border-r border-[#2A2B35]">
         {/* Column header */}
-        <div className="px-8 py-8 shrink-0">
+        <div className="px-4 py-4 md:px-8 md:py-8 shrink-0">
           <h1 className="text-2xl font-bold text-white">Voice Selection</h1>
           <p className="text-sm text-gray-500 mt-1">Choose a persona for your campaign</p>
 
@@ -234,7 +227,7 @@ export default function VoicePage() {
 
         {/* Footer action bar */}
         <div
-          className="shrink-0 flex items-center justify-between p-6 border-t"
+          className="shrink-0 flex items-center justify-between p-4 md:p-6 border-t"
           style={{ borderColor: "#2A2B35", backgroundColor: "#0B0C15" }}
         >
           <Link
@@ -304,9 +297,9 @@ export default function VoicePage() {
         </div>
       </div>
 
-      {/* ---- Right column: Preview & Analysis ---- */}
+      {/* ---- Right column: Preview & Analysis — hidden on mobile ---- */}
       <div
-        className="flex-1 flex flex-col overflow-y-auto px-6 pb-6"
+        className="hidden md:flex flex-1 flex-col overflow-y-auto px-6 pb-6"
         style={{ backgroundColor: "#0B0C15", paddingTop: "calc(2rem + 52px)" }}
       >
         <VoicePreviewPanel

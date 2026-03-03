@@ -183,11 +183,11 @@ export default function LocalisePage() {
   }, 0);
 
   return (
-    <div className="flex-1 flex overflow-hidden">
-      {/* Left Panel: Station Cards (50%) */}
-      <div style={{ flex: "0 0 50%" }} className="bg-[#18181b] flex flex-col border-r border-[#27272a] overflow-hidden">
+    <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
+      {/* Left Panel: Station Cards */}
+      <div className="w-full md:w-1/2 md:shrink-0 bg-[#18181b] flex flex-col border-b md:border-b-0 md:border-r border-[#27272a]">
         {/* Header with inline stats */}
-        <header className="p-6 border-b border-[#27272a] z-10">
+        <header className="p-4 md:p-6 border-b border-[#27272a] z-10">
           <div className="flex justify-between items-start mb-1">
             <p className="text-xs font-bold text-gray-500 tracking-wider uppercase">Select Networks</p>
             <span className="inline-flex items-center rounded-full bg-green-900/80 px-2 py-1 text-xs font-medium text-green-400 border border-green-500/30">
@@ -197,7 +197,7 @@ export default function LocalisePage() {
           <h1 className="text-2xl font-bold text-white mb-3">Station Distribution</h1>
 
           {/* Inline stats row */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5">
               <Icon name="map" className="text-sm text-[#a78bfa]" />
               <span className="text-xs text-gray-400">
@@ -308,8 +308,8 @@ export default function LocalisePage() {
         </div>
       </div>
 
-      {/* Right Panel: Map Visualization */}
-      <section className="flex-1 bg-[#0f0f12] flex flex-col overflow-hidden">
+      {/* Right Panel: Map Visualization — hidden on mobile */}
+      <section className="hidden md:flex flex-1 bg-[#0f0f12] flex-col overflow-hidden">
         <UKMap selectedRegionIds={selectedRegionIds} regions={REGIONS} />
       </section>
     </div>

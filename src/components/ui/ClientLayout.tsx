@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
+import MobileNav from "./MobileNav";
 import { isAuthenticated } from "@/lib/auth";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -33,7 +34,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <Sidebar />
-      <main className="flex-1 overflow-hidden flex flex-col">{children}</main>
+      <main className="flex-1 overflow-hidden flex flex-col pb-16 md:pb-0">{children}</main>
+      <MobileNav />
     </>
   );
 }

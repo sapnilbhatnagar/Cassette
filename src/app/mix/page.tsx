@@ -240,11 +240,11 @@ export default function MixPage() {
   }
 
   return (
-    <div className="flex-1 flex overflow-hidden">
+    <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
       {/* Left Panel — Controls */}
-      <section style={{ flex: "0 0 50%" }} className="flex flex-col overflow-hidden border-r border-[#27272a]">
+      <section className="w-full md:w-1/2 md:shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-[#27272a]">
         {/* Header */}
-        <header className="p-6 border-b border-[#27272a]">
+        <header className="p-4 md:p-6 border-b border-[#27272a]">
           <p className="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1">Audio Production</p>
           <h1 className="text-2xl font-bold text-white">Audio Mix Control</h1>
         </header>
@@ -350,8 +350,8 @@ export default function MixPage() {
         </div>
       </section>
 
-      {/* Right Panel — DAW Timeline Preview */}
-      <section className="flex-1 flex flex-col overflow-hidden">
+      {/* Right Panel — DAW Timeline Preview — hidden on mobile */}
+      <section className="hidden md:flex flex-1 flex-col overflow-hidden">
         <LiveMixPreview
           isMixing={isMixing}
           voiceAudioUrl={voiceAudioUrl}

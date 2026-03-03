@@ -53,7 +53,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`${collapsed ? "w-[60px]" : "w-64"} bg-[#1e1e1e] flex flex-col shrink-0 h-full border-r border-[#27272a] transition-all duration-300 relative`}
+      className={`${collapsed ? "w-[60px]" : "w-64"} hidden md:flex flex-col shrink-0 h-full bg-[#1e1e1e] border-r border-[#27272a] transition-all duration-300 relative`}
     >
       {/* Logo */}
       <div className={`h-14 flex items-center shrink-0 ${collapsed ? "justify-center px-2" : "px-5"}`}>

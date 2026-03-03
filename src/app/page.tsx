@@ -76,7 +76,7 @@ export default function HomePage() {
         </p>
 
         {/* Feature pills */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10">
+        <div className="flex flex-wrap justify-center gap-2 mb-8 px-2">
           {[
             "Claude-powered scripts",
             "ElevenLabs synthesis",
@@ -104,7 +104,7 @@ export default function HomePage() {
         </Link>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-0 mt-14 w-full max-w-lg bg-[#18181b] border border-[#27272a] rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-3 gap-0 mt-10 w-full max-w-lg bg-[#18181b] border border-[#27272a] rounded-2xl overflow-hidden">
           {STATS.map((stat, i) => (
             <div
               key={stat.label}

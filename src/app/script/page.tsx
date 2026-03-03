@@ -154,19 +154,19 @@ export default function ScriptPage() {
           : null;
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col animate-fade-in">
+    <div className="flex-1 overflow-y-auto flex flex-col animate-fade-in">
       {/* Page header bar */}
-      <div className="h-20 flex items-center px-8 border-b border-[#27272a]/30 shrink-0">
+      <div className="flex items-center gap-2 px-4 py-3 md:px-8 md:h-20 border-b border-[#27272a]/30 shrink-0 flex-wrap">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-lg md:text-2xl font-bold text-white">
             Intelligence Collection
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-xs md:text-sm text-gray-500 hidden sm:block mt-0.5">
             Gathering raw data signals to synthesize high-conversion audio copy.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {/* Demo loader button — only shown on brief step */}
           {step === "brief" && (
             <button
@@ -178,37 +178,17 @@ export default function ScriptPage() {
             </button>
           )}
 
-          {/* Settings icon */}
-          <button
-            type="button"
-            className="w-9 h-9 rounded-lg bg-[#27272a] hover:bg-[#3f3f46] border border-[#3a3a3a] flex items-center justify-center transition-all duration-150"
-            aria-label="Settings"
-          >
-            <svg
-              className="w-4 h-4 text-gray-400"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-            </svg>
-          </button>
-
           {/* User avatar */}
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#3b82f6] flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#3b82f6] flex items-center justify-center shrink-0">
             <span className="text-xs font-bold text-white">JS</span>
           </div>
         </div>
       </div>
 
-      {/* Two-panel split */}
-      <div className="flex-1 overflow-hidden p-8 flex gap-8">
-        {/* Left panel — form / results / editor (38%) */}
-        <div style={{ flex: "0 0 38%" }} className="min-w-0 overflow-y-auto">
+      {/* Two-panel split — stacks on mobile */}
+      <div className="flex-1 p-4 md:p-8 flex flex-col md:flex-row gap-4 md:gap-8">
+        {/* Left panel — form / results / editor */}
+        <div className="w-full md:w-[38%] md:shrink-0 min-w-0">
           {/* Error alert */}
           {error && (
             <div className="mb-6 flex items-start gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20">
@@ -287,8 +267,8 @@ export default function ScriptPage() {
           )}
         </div>
 
-        {/* Right panel — Live Script Draft (fills remaining ~60%) */}
-        <div style={{ flex: "1 1 0" }} className="min-w-0 flex flex-col">
+        {/* Right panel — Live Script Draft */}
+        <div className="flex-1 min-w-0 flex flex-col">
           <LiveScriptDraft script={liveScript} isGenerating={loading} />
         </div>
       </div>

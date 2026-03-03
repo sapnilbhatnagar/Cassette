@@ -185,9 +185,9 @@ export default function PreviewPage() {
   const pendingRework = reworkQueue.filter(r => r.status !== "resolved");
 
   return (
-    <main className="flex-1 overflow-hidden flex flex-col">
+    <main className="flex-1 overflow-y-auto flex flex-col">
       {/* Header */}
-      <div className="px-6 pt-6 pb-4 shrink-0 flex items-start justify-between gap-4 border-b border-[#27272a]">
+      <div className="px-4 pt-4 pb-3 md:px-6 md:pt-6 md:pb-4 shrink-0 flex items-start justify-between gap-2 flex-wrap border-b border-[#27272a]">
         <div>
           <p className="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1">Quality Assurance</p>
           <h1 className="text-2xl font-bold text-white">Peer Review</h1>
@@ -213,11 +213,11 @@ export default function PreviewPage() {
         </div>
       </div>
 
-      {/* Main content — fixed-height side-by-side panels */}
-      <div className="flex-1 overflow-hidden flex gap-5 px-6 pb-6 pt-4">
+      {/* Main content — stacks on mobile */}
+      <div className="flex flex-col md:flex-row gap-3 px-4 md:px-6 pb-6 pt-4">
 
-        {/* Left panel: QA controls — fixed width, internally scrollable */}
-        <div className="w-[360px] shrink-0 flex flex-col gap-3 overflow-y-auto">
+        {/* Left panel: QA controls */}
+        <div className="w-full md:w-[360px] md:shrink-0 flex flex-col gap-3">
 
           {/* Compliance Checklist */}
           <div className="bg-[#18181b] border border-white/10 rounded-2xl overflow-hidden shrink-0">
@@ -410,8 +410,8 @@ export default function PreviewPage() {
           </div>
         </div>
 
-        {/* Right panel: Final Master + Ad Script — fills remaining space */}
-        <div className="flex-1 min-w-0 flex flex-col gap-3 overflow-hidden">
+        {/* Right panel: Final Master + Ad Script */}
+        <div className="flex-1 min-w-0 flex flex-col gap-3">
 
           {/* Final Master player */}
           <div className="bg-[#18181b] border border-white/10 rounded-2xl overflow-hidden shrink-0">
