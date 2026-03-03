@@ -181,7 +181,7 @@ export default function VoicePage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
+    <div className="flex flex-col md:flex-1 md:flex-row md:overflow-hidden">
 
       {/* ---- Left column: voice list ---- */}
       <div className="flex flex-col md:flex-1 md:min-w-[400px] border-b md:border-b-0 md:border-r border-[#2A2B35]">
@@ -215,8 +215,8 @@ export default function VoicePage() {
           )}
         </div>
 
-        {/* Filter pills + voice list (flex-1 scroll) */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Filter pills + voice list */}
+        <div className="flex flex-col md:flex-1 md:overflow-hidden">
           <VoiceSelector
             onSelect={handleVoiceSelect}
             selectedVoiceId={selectedVoiceId}

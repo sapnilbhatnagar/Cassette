@@ -154,7 +154,7 @@ export default function ScriptPage() {
           : null;
 
   return (
-    <div className="flex-1 overflow-y-auto flex flex-col animate-fade-in">
+    <div className="flex flex-col md:flex-1 md:overflow-hidden animate-fade-in">
       {/* Page header bar */}
       <div className="flex items-center gap-2 px-4 py-3 md:px-8 md:h-20 border-b border-[#27272a]/30 shrink-0 flex-wrap">
         <div className="flex-1 min-w-0">
@@ -186,9 +186,9 @@ export default function ScriptPage() {
       </div>
 
       {/* Two-panel split — stacks on mobile */}
-      <div className="flex-1 p-4 md:p-8 flex flex-col md:flex-row gap-4 md:gap-8">
+      <div className="p-4 md:p-8 flex flex-col md:flex-row gap-4 md:gap-8 md:flex-1 md:overflow-hidden">
         {/* Left panel — form / results / editor */}
-        <div className="w-full md:w-[38%] md:shrink-0 min-w-0">
+        <div className="w-full md:w-[38%] md:shrink-0 min-w-0 md:overflow-y-auto">
           {/* Error alert */}
           {error && (
             <div className="mb-6 flex items-start gap-3 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20">

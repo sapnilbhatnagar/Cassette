@@ -74,7 +74,7 @@ export default function VoiceCard({
             type="button"
             onClick={handlePreview}
             className={[
-              "flex items-center justify-center w-5 h-5 rounded-full transition-colors opacity-0 group-hover:opacity-100",
+              "flex items-center justify-center w-5 h-5 rounded-full transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100",
               isPlaying
                 ? "bg-[#8B5CF6] text-white"
                 : "bg-[#27272a] border border-[#3f3f46] text-gray-400 hover:text-white hover:border-[#8B5CF6]/40",

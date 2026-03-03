@@ -183,7 +183,7 @@ export default function LocalisePage() {
   }, 0);
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
+    <div className="flex flex-col md:flex-1 md:flex-row md:overflow-hidden">
       {/* Left Panel: Station Cards */}
       <div className="w-full md:w-1/2 md:shrink-0 bg-[#18181b] flex flex-col border-b md:border-b-0 md:border-r border-[#27272a]">
         {/* Header with inline stats */}
@@ -222,7 +222,7 @@ export default function LocalisePage() {
         </header>
 
         {/* Scrollable Region Selector */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="p-4 md:flex-1 md:overflow-y-auto">
           <RegionSelector
             selectedRegionIds={selectedRegionIds}
             onChange={setSelectedRegionIds}

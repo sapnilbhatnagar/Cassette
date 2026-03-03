@@ -185,7 +185,7 @@ export default function PreviewPage() {
   const pendingRework = reworkQueue.filter(r => r.status !== "resolved");
 
   return (
-    <main className="flex-1 overflow-y-auto flex flex-col">
+    <main className="flex flex-col md:flex-1 md:overflow-hidden">
       {/* Header */}
       <div className="px-4 pt-4 pb-3 md:px-6 md:pt-6 md:pb-4 shrink-0 flex items-start justify-between gap-2 flex-wrap border-b border-[#27272a]">
         <div>

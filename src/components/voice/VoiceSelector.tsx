@@ -55,9 +55,9 @@ export default function VoiceSelector({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-auto md:h-full">
       {/* Filter pills section */}
-      <div className="px-8 pb-4 border-b border-[#2A2B35]">
+      <div className="px-4 md:px-8 pb-4 border-b border-[#2A2B35]">
         <div className="flex flex-wrap items-center gap-2">
           {/* Search */}
           <div className="relative">
@@ -112,8 +112,8 @@ export default function VoiceSelector({
         </div>
       </div>
 
-      {/* Scrollable voice grid */}
-      <div className="flex-1 overflow-y-auto px-8 py-4">
+      {/* Voice grid — scrollable on desktop, natural height on mobile */}
+      <div className="px-4 md:px-8 py-4 md:flex-1 md:overflow-y-auto">
         {filteredVoices.length === 0 ? (
           <div
             className="rounded-xl border border-dashed p-10 text-center"
@@ -131,7 +131,7 @@ export default function VoiceSelector({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {filteredVoices.map((voice) => (
               <VoiceCard
                 key={voice.voiceId}

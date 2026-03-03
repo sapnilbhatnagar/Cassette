@@ -240,7 +240,7 @@ export default function MixPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
+    <div className="flex flex-col md:flex-1 md:flex-row md:overflow-hidden">
       {/* Left Panel — Controls */}
       <section className="w-full md:w-1/2 md:shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-[#27272a]">
         {/* Header */}
@@ -250,7 +250,7 @@ export default function MixPage() {
         </header>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="p-4 space-y-4 md:flex-1 md:overflow-y-auto">
           {/* Music Bed Selection */}
           <MusicBedSelector onSelect={handleBedSelect} selectedBedId={selectedBedId} recommendedIds={recommendedIds} />
 
