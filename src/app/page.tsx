@@ -49,7 +49,7 @@ export default function HomePage() {
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Hero Section */}
-      <section className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto pt-16 pb-20 px-4">
+      <section className="flex flex-col items-center justify-center text-center max-w-3xl mx-auto pt-10 sm:pt-16 pb-16 sm:pb-20 px-4">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#8B5CF6]/10 text-[#A78BFA] border border-[#8B5CF6]/20 mb-8">
           <Icon name="auto_awesome" className="text-sm" />
@@ -57,7 +57,7 @@ export default function HomePage() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-5xl sm:text-6xl font-black text-white leading-tight tracking-tight mb-4">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight tracking-tight mb-4">
           From Brief to{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#3b82f6]">
             Broadcast
@@ -69,7 +69,7 @@ export default function HomePage() {
           <span className="text-[#A78BFA] font-bold">5 minutes.</span>
         </p>
 
-        <p className="text-gray-500 text-base leading-relaxed max-w-xl mb-10">
+        <p className="text-gray-500 text-sm sm:text-base leading-relaxed max-w-xl mb-8 sm:mb-10">
           Generate broadcast-ready radio ads using AI. Write a brief, get script variants,
           synthesise with a professional voice, mix with a music bed, and deploy across the
           Bauer Media network, all without a studio or hours of production time.
@@ -96,7 +96,7 @@ export default function HomePage() {
         {/* CTA */}
         <Link
           href="/script"
-          className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#7c3aed] to-[#8a2be2] text-white font-bold text-base rounded-2xl transition-all duration-200 shadow-xl shadow-[#8B5CF6]/25 hover:shadow-[#8B5CF6]/40 hover:-translate-y-0.5 hover:scale-[1.02]"
+          className="inline-flex items-center gap-2.5 px-6 py-3.5 sm:px-8 sm:py-4 bg-gradient-to-r from-[#7c3aed] to-[#8a2be2] text-white font-bold text-sm sm:text-base rounded-2xl transition-all duration-200 shadow-xl shadow-[#8B5CF6]/25 hover:shadow-[#8B5CF6]/40 hover:-translate-y-0.5 hover:scale-[1.02]"
         >
           <Icon name="play_arrow" className="text-xl" />
           Start New Campaign
@@ -113,8 +113,8 @@ export default function HomePage() {
                 i > 0 ? "border-l border-[#27272a]" : "",
               ].join(" ")}
             >
-              <Icon name={stat.icon} className="text-xl text-[#8B5CF6] mb-1.5" />
-              <div className="text-2xl font-black text-white">{stat.value}</div>
+              <Icon name={stat.icon} className="text-lg sm:text-xl text-[#8B5CF6] mb-1.5" />
+              <div className="text-lg sm:text-2xl font-black text-white">{stat.value}</div>
               <div className="text-[10px] text-gray-500 mt-1 text-center leading-tight font-bold uppercase tracking-wider">
                 {stat.label}
               </div>

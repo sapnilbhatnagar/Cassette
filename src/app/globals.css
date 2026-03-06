@@ -112,7 +112,13 @@ input[type=range]::-webkit-slider-runnable-track {
   50% { transform: scaleY(1.4); opacity: 1; }
 }
 
+@keyframes slideUp {
+  0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.animate-in { animation: slideUp 0.3s ease-out forwards; }
 .animate-pulse-purple { animation: pulse-purple 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 .streaming-text { border-right: 2px solid #8B5CF6; animation: blink-caret 0.75s step-end infinite; }
 

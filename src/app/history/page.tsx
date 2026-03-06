@@ -114,25 +114,25 @@ export default function HistoryPage() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#0f0f12]">
       {/* Header */}
-      <header className="px-8 py-7 border-b border-[#27272a] shrink-0">
-        <div className="flex items-center justify-between">
+      <header className="px-4 py-4 md:px-8 md:py-6 border-b border-[#27272a] shrink-0">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-1">
+            <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-0.5">
               Audio Library
             </p>
-            <h1 className="text-2xl font-bold text-white">History</h1>
-            <p className="text-sm text-gray-500 mt-1">
+            <h1 className="text-xl md:text-2xl font-bold text-white">History</h1>
+            <p className="text-xs md:text-sm text-gray-500 mt-1 hidden sm:block">
               Previously generated audio. Replay or load back into the workflow without re-generating.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-500">
+          <div className="flex items-center gap-2 text-xs text-gray-500 shrink-0">
             <Icon name="storage" className="text-base text-[#a78bfa]" />
-            <span>{entries.length} saved {entries.length === 1 ? "entry" : "entries"}</span>
+            <span>{entries.length} saved</span>
           </div>
         </div>
 
         {/* Filter pills */}
-        <div className="flex items-center gap-2 mt-5">
+        <div className="flex items-center gap-2 mt-4">
           {(["all", "voice", "mix"] as FilterType[]).map((f) => (
             <button
               key={f}
@@ -152,7 +152,7 @@ export default function HistoryPage() {
       </header>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8">
         {!loaded ? (
           <div className="flex items-center justify-center py-24">
             <svg className="animate-spin h-6 w-6 text-[#8B5CF6]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

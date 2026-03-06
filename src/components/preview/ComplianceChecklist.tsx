@@ -202,21 +202,6 @@ export default function ComplianceChecklist({
           </p>
         )}
 
-        {/* Approve & Proceed button */}
-        {hasResults && allPassed && (
-          <div className="pt-5">
-            <button
-              type="button"
-              onClick={() => { window.location.href = "/localise"; }}
-              className="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#7c3aed] hover:from-[#7c3aed] hover:to-[#6d28d9] text-white text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#8B5CF6]/20"
-            >
-              Approve &amp; Proceed
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </button>
-          </div>
-        )}
 
         {/* Re-run + Override when failed */}
         {hasResults && !allPassed && (

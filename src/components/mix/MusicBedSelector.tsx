@@ -35,25 +35,20 @@ export default function MusicBedSelector({
   }, [activeMood, recommendedIds]);
 
   return (
-    <div className="bg-[#18181b] border border-[#27272a]/50 rounded-2xl p-6">
+    <div className="bg-[#18181b] border border-[#27272a]/50 rounded-xl p-4">
       {/* Section header */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-[#27272a] flex items-center justify-center">
-            <Icon name="library_music" className="text-base text-[#a78bfa]" />
-          </div>
-          <h2 className="text-base font-bold text-white">Music Bed Selection</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Icon name="library_music" className="text-sm text-[#a78bfa]" />
+          <h2 className="text-xs font-bold text-white uppercase tracking-wider">Music Bed</h2>
         </div>
-        <button
-          type="button"
-          className="text-xs font-medium text-gray-400 hover:text-white transition-colors"
-        >
-          Browse Full Library
-        </button>
+        <span className="text-[9px] text-gray-500">
+          {MUSIC_BEDS.length} tracks
+        </span>
       </div>
 
       {/* Mood filter chips */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-1.5 mb-3">
         {MOOD_OPTIONS.map((mood) => (
           <button
             key={mood}
@@ -73,7 +68,7 @@ export default function MusicBedSelector({
 
       {/* Recommended count hint */}
       {recommendedIds.length > 0 && (
-        <p className="text-xs text-gray-500 mb-4">
+        <p className="text-xs text-gray-500 mb-3">
           <span className="text-[#a78bfa] font-semibold">{recommendedIds.length} recommended</span>
           {" "}based on your ad tone.
         </p>
@@ -85,7 +80,7 @@ export default function MusicBedSelector({
           No music beds match this mood filter.
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {filteredBeds.map((bed) => (
             <MusicBedCard
               key={bed.id}
