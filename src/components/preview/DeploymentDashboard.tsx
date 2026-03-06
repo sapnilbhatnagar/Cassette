@@ -7,16 +7,12 @@ import { STATIONS } from "@/constants/stations";
 import type { LocalisedVariant } from "@/components/localise/VariantList";
 import { STORAGE_KEYS } from "@/constants/storage-keys";
 
-interface DeploymentRecord {
+interface StationRecord {
   id: string;
-  stationName: string;
+  name: string;
   region: string;
-  format: string;
-  variant: string;
-  status: "delivered" | "pending" | "failed";
-  deliveredAt: string;
-  email: string;
-  fileSize: string;
+  localised: boolean;
+  status: "pending" | "delivered" | "failed";
 }
 
 interface DeploymentDashboardProps {
@@ -32,26 +28,12 @@ function generateDeploymentId(): string {
     .toUpperCase()}`;
 }
 
-function generateEmail(stationName: string): string {
-  const slug = stationName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "")
-    .slice(0, 12);
-  return `traffic@${slug}.bauer.co.uk`;
-}
-
-function randomFileSize(): string {
-  const mb = (1.2 + Math.random() * 2.8).toFixed(1);
-  return `${mb} MB`;
-}
-
 export default function DeploymentDashboard({
   scriptTitle,
   selectedRegionIds,
   onClose,
 }: DeploymentDashboardProps) {
-  const [records, setRecords] = useState<DeploymentRecord[]>([]);
-  const [animatedCount, setAnimatedCount] = useState(0);
+  const [records, setRecords] = useState<StationRecord[]>([]);
   const deploymentId = useMemo(() => generateDeploymentId(), []);
   const deploymentTime = useMemo(
     () =>
@@ -65,61 +47,51 @@ export default function DeploymentDashboard({
     []
   );
 
-  // Build deployment records from selected regions + stations + localised variants
+  // Build station records from selected regions
   useEffect(() => {
-    const savedVariants = localStorage.getItem(STORAGE_KEYS.LOCALISED_VARIANTS);
     let variants: LocalisedVariant[] = [];
-    if (savedVariants) {
-      try {
-        variants = JSON.parse(savedVariants) as LocalisedVariant[];
-      } catch {
-        /* ignore */
-      }
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.LOCALISED_VARIANTS);
+      if (raw) variants = JSON.parse(raw) as LocalisedVariant[];
+    } catch {
+      /* ignore */
     }
 
-    const allRecords: DeploymentRecord[] = [];
-    const selectedRegions = REGIONS.filter((r) => selectedRegionIds.includes(r.id));
+    const list: StationRecord[] = [];
+    const selectedRegions = REGIONS.filter((r) =>
+      selectedRegionIds.includes(r.id)
+    );
 
-    // Add regional stations only from user-selected regions
     selectedRegions.forEach((region) => {
-      const variant = variants.find((v) => v.regionId === region.id);
+      const hasVariant = variants.some((v) => v.regionId === region.id);
       region.stationBrands.forEach((brand) => {
-        if (allRecords.some((r) => r.stationName === brand)) return;
-        allRecords.push({
+        if (list.some((r) => r.name === brand)) return;
+        list.push({
           id: `${brand}-${region.id}`,
-          stationName: brand,
+          name: brand,
           region: region.name,
-          format:
-            STATIONS.find((s) => s.name === brand)?.format ?? "Regional",
-          variant: variant ? `${region.name} Localised` : "Base Script",
+          localised: hasVariant,
           status: "pending",
-          deliveredAt: "",
-          email: generateEmail(brand),
-          fileSize: randomFileSize(),
         });
       });
     });
 
-    // Add national stations (always included)
+    // National stations always included
     STATIONS.filter((s) => s.region === "National").forEach((station) => {
-      if (allRecords.some((r) => r.stationName === station.name)) return;
-      allRecords.push({
+      if (list.some((r) => r.name === station.name)) return;
+      list.push({
         id: `${station.name}-national`,
-        stationName: station.name,
+        name: station.name,
         region: "National",
-        format: station.format,
-        variant: "Base Script",
+        localised: false,
         status: "pending",
-        deliveredAt: "",
-        email: generateEmail(station.name),
-        fileSize: randomFileSize(),
       });
     });
 
-    setRecords(allRecords);
+    setRecords(list);
   }, [selectedRegionIds]);
 
-  // Animate delivery statuses
+  // Animate deliveries
   useEffect(() => {
     if (records.length === 0) return;
     let idx = 0;
@@ -133,283 +105,209 @@ export default function DeploymentDashboard({
           i === idx
             ? {
                 ...r,
-                status:
-                  Math.random() > 0.05 ? "delivered" : "failed",
-                deliveredAt: new Date().toLocaleTimeString("en-GB", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                }),
+                status: Math.random() > 0.05 ? "delivered" : "failed",
               }
             : r
         )
       );
-      setAnimatedCount(idx + 1);
       idx++;
-    }, 200 + Math.random() * 150);
-
+    }, 180 + Math.random() * 120);
     return () => clearInterval(interval);
   }, [records.length]);
 
-  const deliveredCount = records.filter(
-    (r) => r.status === "delivered"
-  ).length;
-  const failedCount = records.filter((r) => r.status === "failed").length;
-  const pendingCount = records.filter((r) => r.status === "pending").length;
-  const totalCount = records.length;
-  const progress =
-    totalCount > 0
-      ? Math.round(((deliveredCount + failedCount) / totalCount) * 100)
-      : 0;
-  const allDone = pendingCount === 0 && totalCount > 0;
+  const delivered = records.filter((r) => r.status === "delivered").length;
+  const failed = records.filter((r) => r.status === "failed").length;
+  const total = records.length;
+  const done = delivered + failed;
+  const progress = total > 0 ? Math.round((done / total) * 100) : 0;
+  const allDone = done === total && total > 0;
 
   // Group by region
-  const groupedByRegion = useMemo(() => {
-    const groups: Record<string, DeploymentRecord[]> = {};
+  const grouped = useMemo(() => {
+    const g: Record<string, StationRecord[]> = {};
     records.forEach((r) => {
-      if (!groups[r.region]) groups[r.region] = [];
-      groups[r.region].push(r);
+      if (!g[r.region]) g[r.region] = [];
+      g[r.region].push(r);
     });
-    return groups;
+    return g;
   }, [records]);
 
+  const regionCount = Object.keys(grouped).length;
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4 pt-8 md:pt-16">
-      <div className="w-full max-w-4xl bg-[#131316] border border-[#27272a] rounded-2xl overflow-hidden shadow-2xl animate-in">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4 pt-10 md:pt-20">
+      <div className="w-full max-w-lg bg-[#0f0f12] border border-[#27272a] rounded-2xl overflow-hidden shadow-2xl animate-in">
         {/* Header */}
-        <div className="px-5 py-4 md:px-6 md:py-5 border-b border-[#27272a] flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Icon
-                  name="rocket_launch"
-                  className="text-base text-blue-400"
-                />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-white">
-                  Broadcast Deployment
-                </h2>
-                <p className="text-[10px] text-gray-500 font-mono">
-                  {deploymentId}
-                </p>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {scriptTitle} &middot; Initiated {deploymentTime}
-            </p>
-          </div>
+        <div className="px-5 py-5 md:px-6 text-center relative">
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 transition-colors shrink-0"
+            className="absolute top-4 right-4 w-7 h-7 rounded-lg flex items-center justify-center text-gray-600 hover:text-white hover:bg-white/5 transition-colors"
           >
-            <Icon name="close" className="text-lg" />
+            <Icon name="close" className="text-base" />
           </button>
-        </div>
 
-        {/* Summary stats */}
-        <div className="px-5 py-4 md:px-6 border-b border-[#27272a]">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-[#18181b] border border-[#27272a] rounded-xl p-3 text-center">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-500 mb-1">
-                Total Stations
-              </p>
-              <p className="text-xl font-bold text-white font-mono">
-                {totalCount}
-              </p>
-            </div>
-            <div className="bg-[#18181b] border border-green-500/20 rounded-xl p-3 text-center">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-green-400 mb-1">
-                Delivered
-              </p>
-              <p className="text-xl font-bold text-green-400 font-mono">
-                {deliveredCount}
-              </p>
-            </div>
-            <div className="bg-[#18181b] border border-[#27272a] rounded-xl p-3 text-center">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-500 mb-1">
-                Pending
-              </p>
-              <p className="text-xl font-bold text-amber-400 font-mono">
-                {pendingCount}
-              </p>
-            </div>
-            <div className="bg-[#18181b] border border-[#27272a] rounded-xl p-3 text-center">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-500 mb-1">
-                Failed
-              </p>
-              <p className="text-xl font-bold text-red-400 font-mono">
-                {failedCount}
-              </p>
-            </div>
+          {/* Animated icon */}
+          <div
+            className="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center"
+            style={{
+              background: allDone
+                ? failed === 0
+                  ? "linear-gradient(135deg, #10b981, #059669)"
+                  : "linear-gradient(135deg, #f59e0b, #d97706)"
+                : "linear-gradient(135deg, #8B5CF6, #6d28d9)",
+              transition: "background 0.5s",
+            }}
+          >
+            <Icon
+              name={
+                allDone
+                  ? failed === 0
+                    ? "check"
+                    : "warning"
+                  : "cell_tower"
+              }
+              className="text-xl text-white"
+            />
           </div>
 
+          <h2 className="text-base font-bold text-white">
+            {allDone
+              ? failed === 0
+                ? "Broadcast Complete"
+                : "Broadcast Complete with Errors"
+              : "Broadcasting..."}
+          </h2>
+          <p className="text-xs text-gray-500 mt-1">{scriptTitle}</p>
+
           {/* Progress bar */}
-          <div className="mt-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                Deployment Progress
-              </span>
-              <span className="text-[10px] font-mono text-gray-400">
-                {progress}%
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-[#27272a] overflow-hidden">
+          <div className="mt-4 mx-auto max-w-xs">
+            <div className="h-1.5 rounded-full bg-[#27272a] overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-300"
                 style={{
                   width: `${progress}%`,
                   background:
-                    allDone && failedCount === 0
+                    allDone && failed === 0
                       ? "linear-gradient(to right, #10b981, #34d399)"
                       : allDone
-                      ? "linear-gradient(to right, #f59e0b, #fbbf24)"
-                      : "linear-gradient(to right, #3b82f6, #60a5fa)",
+                        ? "linear-gradient(to right, #f59e0b, #fbbf24)"
+                        : "linear-gradient(to right, #8B5CF6, #a78bfa)",
                 }}
               />
             </div>
+            <div className="flex items-center justify-between mt-1.5">
+              <span className="text-[10px] text-gray-500 font-mono">
+                {done}/{total} stations
+              </span>
+              <span className="text-[10px] font-mono text-gray-500">
+                {progress}%
+              </span>
+            </div>
           </div>
 
-          {/* Status message */}
-          {allDone && (
-            <div
-              className={`mt-3 flex items-center gap-2 px-3 py-2 rounded-lg ${
-                failedCount === 0
-                  ? "bg-green-500/10 border border-green-500/20"
-                  : "bg-amber-500/10 border border-amber-500/20"
-              }`}
-            >
-              <Icon
-                name={failedCount === 0 ? "check_circle" : "warning"}
-                className={`text-base ${
-                  failedCount === 0 ? "text-green-400" : "text-amber-400"
-                }`}
-              />
-              <p
-                className={`text-xs font-medium ${
-                  failedCount === 0 ? "text-green-400" : "text-amber-400"
-                }`}
-              >
-                {failedCount === 0
-                  ? `All ${deliveredCount} stations received the audio successfully.`
-                  : `${deliveredCount} delivered, ${failedCount} failed. Retry available for failed stations.`}
-              </p>
-            </div>
-          )}
+          {/* Summary pills */}
+          <div className="flex items-center justify-center gap-3 mt-4">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#8B5CF6]/10 text-[#a78bfa] border border-[#8B5CF6]/20">
+              <Icon name="map" className="text-xs" />
+              {regionCount} Region{regionCount !== 1 ? "s" : ""}
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
+              <Icon name="check" className="text-xs" />
+              {delivered} Delivered
+            </span>
+            {failed > 0 && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
+                <Icon name="close" className="text-xs" />
+                {failed} Failed
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Station delivery log */}
-        <div className="max-h-[400px] overflow-y-auto">
-          {Object.entries(groupedByRegion).map(
-            ([region, regionRecords]) => (
+        {/* Station list grouped by region */}
+        <div className="border-t border-[#27272a] max-h-[340px] overflow-y-auto">
+          {Object.entries(grouped).map(([region, stations]) => {
+            const regionDelivered = stations.filter(
+              (s) => s.status === "delivered"
+            ).length;
+            return (
               <div key={region}>
                 {/* Region header */}
-                <div className="px-5 py-2 md:px-6 bg-[#18181b] border-b border-[#27272a] sticky top-0 z-10">
+                <div className="px-5 py-2 bg-[#18181b] border-b border-[#27272a] sticky top-0 z-10 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Icon
-                      name="location_on"
-                      className="text-sm text-[#a78bfa]"
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: "#8B5CF6" }}
                     />
-                    <span className="text-[11px] font-bold text-white uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
                       {region}
                     </span>
-                    <span className="text-[9px] text-gray-500 font-mono ml-auto">
-                      {regionRecords.filter((r) => r.status === "delivered").length}
-                      /{regionRecords.length} delivered
-                    </span>
                   </div>
+                  <span className="text-[9px] text-gray-600 font-mono">
+                    {regionDelivered}/{stations.length}
+                  </span>
                 </div>
 
                 {/* Station rows */}
-                {regionRecords.map((record) => (
+                {stations.map((station) => (
                   <div
-                    key={record.id}
-                    className="px-5 py-2.5 md:px-6 border-b border-[#27272a]/50 flex items-center gap-3 hover:bg-white/[0.02] transition-colors"
+                    key={station.id}
+                    className="px-5 py-2 border-b border-[#27272a]/40 flex items-center gap-3"
                   >
-                    {/* Status indicator */}
+                    {/* Status dot */}
                     <div className="shrink-0">
-                      {record.status === "delivered" ? (
-                        <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center">
+                      {station.status === "delivered" ? (
+                        <div className="w-4 h-4 rounded-full bg-green-500/15 flex items-center justify-center">
                           <Icon
                             name="check"
-                            className="text-[10px] text-green-400"
+                            className="text-[8px] text-green-400"
                           />
                         </div>
-                      ) : record.status === "failed" ? (
-                        <div className="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center">
+                      ) : station.status === "failed" ? (
+                        <div className="w-4 h-4 rounded-full bg-red-500/15 flex items-center justify-center">
                           <Icon
                             name="close"
-                            className="text-[10px] text-red-400"
+                            className="text-[8px] text-red-400"
                           />
                         </div>
                       ) : (
-                        <div className="w-5 h-5 rounded-full bg-[#27272a] flex items-center justify-center">
-                          <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                        <div className="w-4 h-4 rounded-full bg-[#27272a] flex items-center justify-center">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6] animate-pulse" />
                         </div>
                       )}
                     </div>
 
-                    {/* Station info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-semibold text-white truncate">
-                        {record.stationName}
-                      </p>
-                      <p className="text-[9px] text-gray-500 truncate">
-                        {record.format}
-                      </p>
-                    </div>
-
-                    {/* Variant badge */}
-                    <span
-                      className={`hidden sm:inline-flex shrink-0 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
-                        record.variant.includes("Localised")
-                          ? "bg-[#8B5CF6]/10 text-[#a78bfa] border border-[#8B5CF6]/20"
-                          : "bg-[#27272a] text-gray-500"
-                      }`}
-                    >
-                      {record.variant}
+                    {/* Station name */}
+                    <span className="text-xs text-gray-300 truncate flex-1">
+                      {station.name}
                     </span>
 
-                    {/* Email */}
-                    <span className="hidden md:inline text-[9px] text-gray-600 font-mono truncate max-w-[180px] shrink-0">
-                      {record.email}
-                    </span>
-
-                    {/* File size */}
-                    <span className="text-[9px] text-gray-500 font-mono w-12 text-right shrink-0">
-                      {record.fileSize}
-                    </span>
-
-                    {/* Time */}
-                    <span className="text-[9px] text-gray-600 font-mono w-16 text-right shrink-0">
-                      {record.deliveredAt || "--:--:--"}
-                    </span>
+                    {/* Localised badge */}
+                    {station.localised && (
+                      <span className="text-[8px] font-bold text-[#a78bfa] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#8B5CF6]/10 shrink-0">
+                        Localised
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
-            )
-          )}
+            );
+          })}
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-4 md:px-6 border-t border-[#27272a] flex items-center justify-between gap-3 flex-wrap">
+        <div className="px-5 py-4 border-t border-[#27272a] flex items-center justify-between gap-3">
+          <p className="text-[9px] text-gray-600 font-mono">{deploymentId}</p>
           <div className="flex items-center gap-2">
-            <Icon name="info" className="text-sm text-gray-600" />
-            <p className="text-[10px] text-gray-500">
-              Deployment audit log retained for 90 days. All deliveries are
-              tracked and verifiable.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {failedCount > 0 && allDone && (
+            {failed > 0 && allDone && (
               <button
                 type="button"
                 onClick={() => {
                   setRecords((prev) =>
                     prev.map((r) =>
                       r.status === "failed"
-                        ? { ...r, status: "pending", deliveredAt: "" }
+                        ? { ...r, status: "pending" }
                         : r
                     )
                   );
@@ -422,9 +320,9 @@ export default function DeploymentDashboard({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-sm font-bold text-white transition-all"
+              className="px-5 py-2 rounded-xl text-sm font-bold text-white transition-all"
               style={{
-                background: "linear-gradient(to right, #8B5CF6, #6d28d9)",
+                background: "linear-gradient(135deg, #8B5CF6, #6d28d9)",
               }}
             >
               Done
