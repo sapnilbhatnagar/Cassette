@@ -265,6 +265,7 @@ export default function LocalisePage() {
 
   const handleBroadcast = useCallback(() => {
     setShowDeployDashboard(true);
+    setShowMapMobile(false);
   }, []);
 
   if (!loaded) return <Spinner />;
@@ -316,14 +317,16 @@ export default function LocalisePage() {
               </p>
               <div className="flex items-center gap-2">
                 {/* Mobile map toggle */}
-                <button
-                  type="button"
-                  onClick={() => setShowMapMobile(!showMapMobile)}
-                  className="md:hidden inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-[#a78bfa] border border-[#8B5CF6]/20 hover:bg-[#8B5CF6]/10 transition-colors"
-                >
-                  <Icon name="map" className="text-xs" />
-                  {showMapMobile ? "Hide Map" : "View Map"}
-                </button>
+                {!showDeployDashboard && (
+                  <button
+                    type="button"
+                    onClick={() => setShowMapMobile(!showMapMobile)}
+                    className="md:hidden inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold text-[#a78bfa] border border-[#8B5CF6]/20 hover:bg-[#8B5CF6]/10 transition-colors"
+                  >
+                    <Icon name="map" className="text-xs" />
+                    {showMapMobile ? "Hide Map" : "View Map"}
+                  </button>
+                )}
                 <span className="inline-flex items-center rounded-full bg-green-900/80 px-2 py-1 text-[10px] font-medium text-green-400 border border-green-500/30">
                   ACTIVE
                 </span>
@@ -543,19 +546,29 @@ export default function LocalisePage() {
           </div>
         </div>
 
-        {/* Right Panel: Map Visualization -- desktop only */}
+        {/* Right Panel: Map or Dashboard — desktop */}
         <section className="hidden md:flex flex-1 bg-[#0f0f12] flex-col overflow-hidden">
-          <UKMap selectedRegionIds={selectedRegionIds} regions={REGIONS} />
+          {showDeployDashboard ? (
+            <DeploymentDashboard
+              scriptTitle={confirmedScript?.title ?? "Untitled Campaign"}
+              selectedRegionIds={selectedRegionIds}
+              onFlipToMap={() => setShowDeployDashboard(false)}
+            />
+          ) : (
+            <UKMap selectedRegionIds={selectedRegionIds} regions={REGIONS} />
+          )}
         </section>
       </div>
 
-      {/* Deployment Dashboard Overlay */}
+      {/* Mobile: Dashboard shown below content when active */}
       {showDeployDashboard && (
-        <DeploymentDashboard
-          scriptTitle={confirmedScript?.title ?? "Untitled Campaign"}
-          selectedRegionIds={selectedRegionIds}
-          onClose={() => setShowDeployDashboard(false)}
-        />
+        <div className="md:hidden border-t border-[#27272a] h-[70vh]">
+          <DeploymentDashboard
+            scriptTitle={confirmedScript?.title ?? "Untitled Campaign"}
+            selectedRegionIds={selectedRegionIds}
+            onFlipToMap={() => setShowDeployDashboard(false)}
+          />
+        </div>
       )}
     </>
   );
