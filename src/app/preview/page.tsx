@@ -85,6 +85,7 @@ export default function PreviewPage() {
   const [reviewState, setReviewState] = useState<ReviewState>("reviewing");
   const [reworkComment, setReworkComment] = useState("");
   const [reworkQueue, setReworkQueue] = useState<ReworkItem[]>([]);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   /* Load from localStorage */
   useEffect(() => {
@@ -144,8 +145,11 @@ export default function PreviewPage() {
 
   /* Approve — reviewer says audio is good, proceed to deployment */
   const handleApprove = useCallback(() => {
+    setIsNavigating(true);
     setReviewState("approved");
-    router.push("/localise");
+    setTimeout(() => {
+      router.push("/localise");
+    }, 800);
   }, [router]);
 
   /* Request rework */
@@ -241,6 +245,31 @@ export default function PreviewPage() {
 
   return (
     <>
+      {/* Navigation transition overlay */}
+      {isNavigating && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{
+            background: "rgba(0,0,0,0.72)",
+            backdropFilter: "blur(6px)",
+            animation: "fadeIn 0.25s ease",
+          }}
+        >
+          <div className="text-center">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+              style={{
+                background: "rgba(16,185,129,0.15)",
+                border: "1.5px solid rgba(52,211,153,0.4)",
+              }}
+            >
+              <Icon name="check_circle" className="text-4xl text-green-400" />
+            </div>
+            <p className="text-white font-bold text-lg tracking-tight">Approved</p>
+            <p className="text-gray-400 text-sm mt-1">Proceeding to deployment...</p>
+          </div>
+        </div>
+      )}
       <main className="flex flex-col md:flex-1 md:overflow-hidden">
         {/* Header */}
         <div className="px-4 pt-4 pb-3 md:px-6 md:pt-5 md:pb-4 shrink-0 flex items-start justify-between gap-2 flex-wrap border-b border-[#27272a]">
@@ -300,7 +329,7 @@ export default function PreviewPage() {
                   <button
                     type="button"
                     onClick={handleApprove}
-                    disabled={!allPassed}
+                    disabled={!allPassed || isNavigating}
                     className="w-full py-2.5 px-4 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     style={{
                       background: allPassed
@@ -308,8 +337,20 @@ export default function PreviewPage() {
                         : "#27272a",
                     }}
                   >
-                    <Icon name="check_circle" className="text-base" />
-                    Approve &amp; Proceed to Deployment
+                    {isNavigating ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Approved — proceeding...
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="check_circle" className="text-base" />
+                        Approve &amp; Proceed to Deployment
+                      </>
+                    )}
                   </button>
                   <button
                     type="button"

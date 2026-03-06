@@ -64,6 +64,7 @@ export default function LocalisePage() {
   >();
   const [showDeployDashboard, setShowDeployDashboard] = useState(false);
   const [showMapMobile, setShowMapMobile] = useState(false);
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
 
   useEffect(() => {
     const rawScript = localStorage.getItem(STORAGE_KEYS.CONFIRMED_SCRIPT);
@@ -264,8 +265,12 @@ export default function LocalisePage() {
   }, [variants, selectedVoiceId, synthesiseAudio]);
 
   const handleBroadcast = useCallback(() => {
-    setShowDeployDashboard(true);
+    setIsBroadcasting(true);
     setShowMapMobile(false);
+    setTimeout(() => {
+      setShowDeployDashboard(true);
+      setIsBroadcasting(false);
+    }, 600);
   }, []);
 
   if (!loaded) return <Spinner />;
@@ -446,7 +451,7 @@ export default function LocalisePage() {
                 <button
                   type="button"
                   onClick={handleBroadcast}
-                  disabled={selectedRegionIds.length === 0}
+                  disabled={selectedRegionIds.length === 0 || isBroadcasting}
                   className="w-full py-3 px-6 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                   style={{
                     background:
@@ -454,8 +459,20 @@ export default function LocalisePage() {
                     boxShadow: selectedRegionIds.length > 0 ? "0 4px 14px rgba(59,130,246,0.3)" : "none",
                   }}
                 >
-                  <Icon name="rocket_launch" className="text-base" />
-                  Broadcast Same Audio to {allStationsSelected ? "All Stations" : "Selected Stations"}
+                  {isBroadcasting ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Launching...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="rocket_launch" className="text-base" />
+                      Broadcast Same Audio to {allStationsSelected ? "All Stations" : "Selected Stations"}
+                    </>
+                  )}
                 </button>
                 <p className="text-[10px] text-gray-600 text-center leading-relaxed px-4">
                   Skip localisation and send the same base audio to all selected stations.
@@ -535,36 +552,66 @@ export default function LocalisePage() {
                 <button
                   type="button"
                   onClick={handleBroadcast}
-                  className="w-full py-3 px-4 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg"
+                  disabled={isBroadcasting}
+                  className="w-full py-3 px-4 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg disabled:opacity-60"
                   style={{
                     background:
                       "linear-gradient(to right, #3b82f6, #2563eb)",
                     boxShadow: "0 4px 14px rgba(59,130,246,0.3)",
                   }}
                 >
-                  <Icon name="rocket_launch" className="text-base" />
-                  Broadcast to {allStationsSelected ? "All Stations" : "Selected Stations"}
+                  {isBroadcasting ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Launching...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="rocket_launch" className="text-base" />
+                      Broadcast to {allStationsSelected ? "All Stations" : "Selected Stations"}
+                    </>
+                  )}
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Panel: Map or Dashboard — desktop */}
-        <section className="hidden md:flex flex-1 bg-[#0f0f12] flex-col overflow-hidden">
-          {showDeployDashboard ? (
-            <DeploymentDashboard
-              scriptTitle={confirmedScript?.title ?? "Untitled Campaign"}
-              selectedRegionIds={selectedRegionIds}
-              onFlipToMap={() => setShowDeployDashboard(false)}
-            />
-          ) : (
+        {/* Right Panel: Map or Dashboard — desktop (fade transition) */}
+        <section className="hidden md:flex flex-1 bg-[#0f0f12] flex-col overflow-hidden relative">
+          {/* Map layer */}
+          <div
+            className="absolute inset-0 flex flex-col overflow-hidden"
+            style={{
+              opacity: showDeployDashboard ? 0 : 1,
+              pointerEvents: showDeployDashboard ? "none" : "auto",
+              transition: "opacity 0.4s ease",
+            }}
+          >
             <UKMap
               selectedRegionIds={selectedRegionIds}
               regions={REGIONS}
               onFlipToDashboard={() => setShowDeployDashboard(true)}
             />
-          )}
+          </div>
+          {/* Dashboard layer */}
+          <div
+            className="absolute inset-0 flex flex-col overflow-hidden"
+            style={{
+              opacity: showDeployDashboard ? 1 : 0,
+              pointerEvents: showDeployDashboard ? "auto" : "none",
+              transition: "opacity 0.4s ease",
+            }}
+          >
+            <DeploymentDashboard
+              scriptTitle={confirmedScript?.title ?? "Untitled Campaign"}
+              selectedRegionIds={selectedRegionIds}
+              onFlipToMap={() => setShowDeployDashboard(false)}
+            />
+          </div>
         </section>
       </div>
 

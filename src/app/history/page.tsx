@@ -310,7 +310,7 @@ function HistoryCard({
           ) : (
             <>
               <Icon name="upload" className="text-sm" />
-              {entry.entryType === "voice" ? "Load → Mix" : "Load → Review"}
+              {entry.entryType === "voice" ? "Load to Mix" : "Load to Review"}
             </>
           )}
         </button>
