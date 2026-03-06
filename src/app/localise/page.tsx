@@ -312,7 +312,7 @@ export default function LocalisePage() {
           <header className="p-4 md:p-6 border-b border-[#27272a] z-10">
             <div className="flex justify-between items-start mb-1">
               <p className="text-[10px] font-bold text-gray-500 tracking-wider uppercase">
-                Select Networks
+                Deploy &amp; Localise
               </p>
               <div className="flex items-center gap-2">
                 {/* Mobile map toggle */}
@@ -386,48 +386,74 @@ export default function LocalisePage() {
               onChange={setSelectedRegionIds}
             />
 
-            {/* Localise button */}
+            {/* Action buttons — Localise or Broadcast as-is */}
             {variants.length === 0 && (
-              <button
-                onClick={handleLocalise}
-                disabled={selectedRegionIds.length === 0 || isLocalising}
-                className="w-full mt-4 py-3 px-6 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  background:
-                    "linear-gradient(to right, #6f42c1, #8a2be2)",
-                }}
-              >
-                {isLocalising ? (
-                  <>
-                    <svg
-                      className="animate-spin h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    Localising...
-                  </>
-                ) : (
-                  <>
-                    <Icon name="cell_tower" className="text-lg" />
-                    Localise Scripts
-                  </>
-                )}
-              </button>
+              <div className="mt-4 space-y-2">
+                <button
+                  onClick={handleLocalise}
+                  disabled={selectedRegionIds.length === 0 || isLocalising}
+                  className="w-full py-3 px-6 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    background:
+                      "linear-gradient(to right, #6f42c1, #8a2be2)",
+                  }}
+                >
+                  {isLocalising ? (
+                    <>
+                      <svg
+                        className="animate-spin h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                        />
+                      </svg>
+                      Localising...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="translate" className="text-lg" />
+                      Localise Scripts for Each Region
+                    </>
+                  )}
+                </button>
+
+                <div className="flex items-center gap-3 px-2">
+                  <div className="flex-1 h-px bg-[#27272a]" />
+                  <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">or</span>
+                  <div className="flex-1 h-px bg-[#27272a]" />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleBroadcast}
+                  disabled={selectedRegionIds.length === 0}
+                  className="w-full py-3 px-6 rounded-xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  style={{
+                    background:
+                      "linear-gradient(to right, #3b82f6, #2563eb)",
+                    boxShadow: selectedRegionIds.length > 0 ? "0 4px 14px rgba(59,130,246,0.3)" : "none",
+                  }}
+                >
+                  <Icon name="rocket_launch" className="text-base" />
+                  Broadcast Same Audio to All Regions
+                </button>
+                <p className="text-[10px] text-gray-600 text-center leading-relaxed px-4">
+                  Skip localisation and send the same base audio to all selected stations.
+                </p>
+              </div>
             )}
 
             {/* Error */}
@@ -527,6 +553,7 @@ export default function LocalisePage() {
       {showDeployDashboard && (
         <DeploymentDashboard
           scriptTitle={confirmedScript?.title ?? "Untitled Campaign"}
+          selectedRegionIds={selectedRegionIds}
           onClose={() => setShowDeployDashboard(false)}
         />
       )}

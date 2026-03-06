@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Icon from "@/components/ui/Icon";
-import { REGIONS, type Region } from "@/constants/regions";
+import { REGIONS } from "@/constants/regions";
 import { STATIONS } from "@/constants/stations";
 import type { LocalisedVariant } from "@/components/localise/VariantList";
 import { STORAGE_KEYS } from "@/constants/storage-keys";
@@ -21,6 +21,7 @@ interface DeploymentRecord {
 
 interface DeploymentDashboardProps {
   scriptTitle: string;
+  selectedRegionIds: string[];
   onClose: () => void;
 }
 
@@ -46,6 +47,7 @@ function randomFileSize(): string {
 
 export default function DeploymentDashboard({
   scriptTitle,
+  selectedRegionIds,
   onClose,
 }: DeploymentDashboardProps) {
   const [records, setRecords] = useState<DeploymentRecord[]>([]);
@@ -63,7 +65,7 @@ export default function DeploymentDashboard({
     []
   );
 
-  // Build deployment records from regions + stations + localised variants
+  // Build deployment records from selected regions + stations + localised variants
   useEffect(() => {
     const savedVariants = localStorage.getItem(STORAGE_KEYS.LOCALISED_VARIANTS);
     let variants: LocalisedVariant[] = [];
@@ -76,27 +78,12 @@ export default function DeploymentDashboard({
     }
 
     const allRecords: DeploymentRecord[] = [];
+    const selectedRegions = REGIONS.filter((r) => selectedRegionIds.includes(r.id));
 
-    // Add national stations
-    STATIONS.filter((s) => s.region === "National").forEach((station) => {
-      allRecords.push({
-        id: `${station.name}-national`,
-        stationName: station.name,
-        region: "National",
-        format: station.format,
-        variant: "Base Script",
-        status: "pending",
-        deliveredAt: "",
-        email: generateEmail(station.name),
-        fileSize: randomFileSize(),
-      });
-    });
-
-    // Add regional stations from selected regions
-    REGIONS.forEach((region) => {
+    // Add regional stations only from user-selected regions
+    selectedRegions.forEach((region) => {
       const variant = variants.find((v) => v.regionId === region.id);
       region.stationBrands.forEach((brand) => {
-        // Skip if already added as national
         if (allRecords.some((r) => r.stationName === brand)) return;
         allRecords.push({
           id: `${brand}-${region.id}`,
@@ -113,25 +100,24 @@ export default function DeploymentDashboard({
       });
     });
 
-    // Add any regional stations from STATIONS that weren't covered
-    STATIONS.filter((s) => s.region !== "National").forEach((station) => {
-      if (!allRecords.some((r) => r.stationName === station.name)) {
-        allRecords.push({
-          id: `${station.name}-${station.region}`,
-          stationName: station.name,
-          region: station.region,
-          format: station.format,
-          variant: "Base Script",
-          status: "pending",
-          deliveredAt: "",
-          email: generateEmail(station.name),
-          fileSize: randomFileSize(),
-        });
-      }
+    // Add national stations (always included)
+    STATIONS.filter((s) => s.region === "National").forEach((station) => {
+      if (allRecords.some((r) => r.stationName === station.name)) return;
+      allRecords.push({
+        id: `${station.name}-national`,
+        stationName: station.name,
+        region: "National",
+        format: station.format,
+        variant: "Base Script",
+        status: "pending",
+        deliveredAt: "",
+        email: generateEmail(station.name),
+        fileSize: randomFileSize(),
+      });
     });
 
     setRecords(allRecords);
-  }, []);
+  }, [selectedRegionIds]);
 
   // Animate delivery statuses
   useEffect(() => {

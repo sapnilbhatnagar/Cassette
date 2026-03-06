@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Icon from "@/components/ui/Icon";
 import PreviewPlayer from "@/components/preview/PreviewPlayer";
 import ComplianceChecklist from "@/components/preview/ComplianceChecklist";
-import DeploymentDashboard from "@/components/preview/DeploymentDashboard";
 import { STORAGE_KEYS } from "@/constants/storage-keys";
 import type { ScriptVariant } from "@/types/ad-brief";
 import {
@@ -66,10 +66,11 @@ function Spinner() {
 }
 
 /* --------------- Approval states --------------- */
-type ReviewState = "reviewing" | "requesting_rework" | "approved" | "deployed";
+type ReviewState = "reviewing" | "requesting_rework" | "approved";
 
 /* --------------- Page --------------- */
 export default function PreviewPage() {
+  const router = useRouter();
   const [loaded, setLoaded] = useState(false);
   const [confirmedScript, setConfirmedScript] =
     useState<ScriptVariant | null>(null);
@@ -84,9 +85,6 @@ export default function PreviewPage() {
   const [reviewState, setReviewState] = useState<ReviewState>("reviewing");
   const [reworkComment, setReworkComment] = useState("");
   const [reworkQueue, setReworkQueue] = useState<ReworkItem[]>([]);
-
-  // Deployment dashboard
-  const [showDeployDashboard, setShowDeployDashboard] = useState(false);
 
   /* Load from localStorage */
   useEffect(() => {
@@ -144,15 +142,11 @@ export default function PreviewPage() {
     }
   }, [mixedAudioUrl, confirmedScript, checksRan, checksLoading, runChecks]);
 
-  /* Approve */
+  /* Approve — reviewer says audio is good, proceed to deployment */
   const handleApprove = useCallback(() => {
     setReviewState("approved");
-  }, []);
-
-  const handleDeploy = useCallback(() => {
-    setReviewState("deployed");
-    setShowDeployDashboard(true);
-  }, []);
+    router.push("/localise");
+  }, [router]);
 
   /* Request rework */
   const handleSubmitRework = useCallback(() => {
@@ -258,26 +252,12 @@ export default function PreviewPage() {
               Peer Review
             </h1>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {reviewState === "approved" && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                Approved
-              </span>
-            )}
-            {reviewState === "deployed" && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                Deployed
-              </span>
-            )}
-            {pendingRework.length > 0 && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                {pendingRework.length} Rework
-                {pendingRework.length > 1 ? "s" : ""} Pending
-              </span>
-            )}
-          </div>
+          {pendingRework.length > 0 && (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              {pendingRework.length} Rework
+              {pendingRework.length > 1 ? "s" : ""} Pending
+            </span>
+          )}
         </div>
 
         {/* Main content */}
@@ -329,7 +309,7 @@ export default function PreviewPage() {
                     }}
                   >
                     <Icon name="check_circle" className="text-base" />
-                    Approve for Deployment
+                    Approve &amp; Proceed to Deployment
                   </button>
                   <button
                     type="button"
@@ -391,76 +371,6 @@ export default function PreviewPage() {
                   >
                     Cancel
                   </button>
-                </div>
-              </div>
-            )}
-
-            {/* Approved state */}
-            {reviewState === "approved" && (
-              <div className="bg-[#18181b] border border-green-500/20 rounded-2xl p-4 shrink-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon
-                    name="verified"
-                    className="text-base text-green-400"
-                  />
-                  <h3 className="text-sm font-bold text-white">
-                    Approved for Deployment
-                  </h3>
-                </div>
-                <p className="text-xs text-gray-500 mb-3">
-                  This audio has passed quality checks and received evaluator
-                  approval.
-                </p>
-                <button
-                  type="button"
-                  onClick={handleDeploy}
-                  className="w-full py-2.5 px-4 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 transition-all"
-                  style={{
-                    background:
-                      "linear-gradient(to right, #3b82f6, #2563eb)",
-                  }}
-                >
-                  <Icon name="rocket_launch" className="text-base" />
-                  Deploy to Broadcast
-                </button>
-              </div>
-            )}
-
-            {/* Deployed state */}
-            {reviewState === "deployed" && (
-              <div className="bg-[#18181b] border border-blue-500/20 rounded-2xl p-4 shrink-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <Icon
-                      name="check_circle"
-                      className="text-lg text-blue-400"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-white">
-                      Successfully Deployed
-                    </h3>
-                    <p className="text-[10px] text-gray-500">
-                      Audio sent to broadcast network
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mt-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowDeployDashboard(true)}
-                    className="flex-1 py-2 px-3 rounded-xl text-sm font-bold text-blue-400 border border-blue-500/20 flex items-center justify-center gap-2 hover:bg-blue-500/10 transition-colors"
-                  >
-                    <Icon name="dashboard" className="text-base" />
-                    View Deployment Dashboard
-                  </button>
-                  <Link
-                    href="/localise"
-                    className="px-3 py-2 rounded-xl text-sm font-medium text-[#8B5CF6] hover:text-[#a78bfa] flex items-center gap-1.5 transition-colors"
-                  >
-                    <Icon name="cell_tower" className="text-base" />
-                    Localise
-                  </Link>
                 </div>
               </div>
             )}
@@ -615,14 +525,6 @@ export default function PreviewPage() {
           </div>
         </div>
       </main>
-
-      {/* Deployment Dashboard Overlay */}
-      {showDeployDashboard && (
-        <DeploymentDashboard
-          scriptTitle={confirmedScript?.title ?? "Untitled Campaign"}
-          onClose={() => setShowDeployDashboard(false)}
-        />
-      )}
     </>
   );
 }
