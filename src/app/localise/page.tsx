@@ -295,6 +295,9 @@ export default function LocalisePage() {
   }
 
   // Calculate stats
+  const allAvailableStations = REGIONS.reduce((acc, region) => {
+    return acc + region.stationBrands.length;
+  }, 0);
   const totalReach = selectedRegionIds.reduce((acc, id) => {
     const region = REGIONS.find((r) => r.id === id);
     return acc + (region?.reachNumber ?? 0);
@@ -303,6 +306,7 @@ export default function LocalisePage() {
     const region = REGIONS.find((r) => r.id === id);
     return acc + (region?.stationBrands?.length ?? 0);
   }, 0);
+  const allStationsSelected = totalStations === allAvailableStations && selectedRegionIds.length > 0;
 
   return (
     <>
@@ -451,7 +455,7 @@ export default function LocalisePage() {
                   }}
                 >
                   <Icon name="rocket_launch" className="text-base" />
-                  Broadcast Same Audio to All Regions
+                  Broadcast Same Audio to {allStationsSelected ? "All Stations" : "Selected Stations"}
                 </button>
                 <p className="text-[10px] text-gray-600 text-center leading-relaxed px-4">
                   Skip localisation and send the same base audio to all selected stations.
@@ -539,7 +543,7 @@ export default function LocalisePage() {
                   }}
                 >
                   <Icon name="rocket_launch" className="text-base" />
-                  Broadcast to All Stations
+                  Broadcast to {allStationsSelected ? "All Stations" : "Selected Stations"}
                 </button>
               </div>
             )}
@@ -555,7 +559,11 @@ export default function LocalisePage() {
               onFlipToMap={() => setShowDeployDashboard(false)}
             />
           ) : (
-            <UKMap selectedRegionIds={selectedRegionIds} regions={REGIONS} />
+            <UKMap
+              selectedRegionIds={selectedRegionIds}
+              regions={REGIONS}
+              onFlipToDashboard={() => setShowDeployDashboard(true)}
+            />
           )}
         </section>
       </div>

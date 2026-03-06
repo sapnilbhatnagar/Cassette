@@ -7,6 +7,7 @@ import type { Region } from "@/constants/regions";
 interface UKMapProps {
   selectedRegionIds: string[];
   regions: Region[];
+  onFlipToDashboard?: () => void;
 }
 
 const CX = 250;
@@ -74,7 +75,11 @@ const REGION_MAP_IDS: Record<string, string[]> = {
 
 interface MapTransform { scale: number; x: number; y: number }
 
-export default function UKMap({ selectedRegionIds, regions }: UKMapProps) {
+export default function UKMap({
+  selectedRegionIds,
+  regions,
+  onFlipToDashboard,
+}: UKMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const dragRef = useRef({ startX: 0, startY: 0, panX: 0, panY: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -182,7 +187,7 @@ export default function UKMap({ selectedRegionIds, regions }: UKMapProps) {
       {/* ── Map area ── */}
       <div className="flex-1 relative overflow-hidden bg-[#18181b]">
 
-        {/* Zoom controls */}
+        {/* Zoom + flip controls */}
         <div className="absolute right-4 top-4 z-20 flex flex-col gap-1">
           {[
             { icon: "add",                  label: "Zoom in",   action: () => zoomAt(1.35, CX, CY) },
@@ -195,6 +200,17 @@ export default function UKMap({ selectedRegionIds, regions }: UKMapProps) {
               <Icon name={btn.icon} className="text-base" />
             </button>
           ))}
+          {onFlipToDashboard && (
+            <button
+              type="button"
+              onClick={onFlipToDashboard}
+              className="w-8 h-8 rounded-lg bg-[#1f1f22] border border-[#8B5CF6]/30 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/10 text-[#a78bfa] hover:text-white flex items-center justify-center transition-all mt-2"
+              aria-label="View deployment dashboard"
+              title="View deployment dashboard"
+            >
+              <Icon name="dashboard" className="text-base" />
+            </button>
+          )}
         </div>
 
         {/* Zoom badge */}
