@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { logout } from "@/lib/auth";
+import { logout, getCurrentUser, type SessionUser } from "@/lib/auth";
 
 const SIDEBAR_COLLAPSED_KEY = "cassette-sidebar-collapsed";
 
@@ -37,10 +37,12 @@ export default function Sidebar() {
   const router = useRouter();
   const activeIndex = getActiveIndex(pathname);
   const [collapsed, setCollapsed] = useState(false);
+  const [user, setUser] = useState<SessionUser | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
     if (stored === "true") setCollapsed(true);
+    setUser(getCurrentUser());
   }, []);
 
   const toggleCollapsed = useCallback(() => {
@@ -50,6 +52,15 @@ export default function Sidebar() {
       return next;
     });
   }, []);
+
+  const initials = user
+    ? user.username
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "??";
 
   return (
     <aside
@@ -195,6 +206,70 @@ export default function Sidebar() {
               </Link>
             );
           })}
+
+          {/* Admin link (only for admin users) */}
+          {user?.role === "admin" && (
+            <>
+              {collapsed ? (
+                <Link
+                  href="/admin"
+                  title="Admin Dashboard"
+                  className={[
+                    "relative flex items-center justify-center w-9 h-9 mx-auto rounded-lg transition-all duration-200",
+                    pathname === "/admin" ? "bg-[#8B5CF6]/10" : "hover:bg-white/5",
+                  ].join(" ")}
+                >
+                  <span className={["material-symbols-outlined text-xl", pathname === "/admin" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+                    admin_panel_settings
+                  </span>
+                  {pathname === "/admin" && <span className="absolute -right-0.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-[#8B5CF6]" />}
+                </Link>
+              ) : (
+                <Link
+                  href="/admin"
+                  className={[
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    pathname === "/admin" ? "bg-[#8B5CF6]/10 text-white" : "text-gray-500 hover:bg-white/5",
+                  ].join(" ")}
+                >
+                  <span className={["material-symbols-outlined text-xl", pathname === "/admin" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+                    admin_panel_settings
+                  </span>
+                  Admin
+                </Link>
+              )}
+            </>
+          )}
+
+          {/* Settings link */}
+          {collapsed ? (
+            <Link
+              href="/settings"
+              title="Settings"
+              className={[
+                "relative flex items-center justify-center w-9 h-9 mx-auto rounded-lg transition-all duration-200",
+                pathname === "/settings" ? "bg-[#8B5CF6]/10" : "hover:bg-white/5",
+              ].join(" ")}
+            >
+              <span className={["material-symbols-outlined text-xl", pathname === "/settings" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+                settings
+              </span>
+              {pathname === "/settings" && <span className="absolute -right-0.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-[#8B5CF6]" />}
+            </Link>
+          ) : (
+            <Link
+              href="/settings"
+              className={[
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                pathname === "/settings" ? "bg-[#8B5CF6]/10 text-white" : "text-gray-500 hover:bg-white/5",
+              ].join(" ")}
+            >
+              <span className={["material-symbols-outlined text-xl", pathname === "/settings" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+                settings
+              </span>
+              Settings
+            </Link>
+          )}
         </div>
       </div>
 
@@ -203,7 +278,7 @@ export default function Sidebar() {
         {collapsed ? (
           <>
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#8B5CF6]/20 to-[#6d28d9]/20 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-[#8B5CF6]">AU</span>
+              <span className="text-[10px] font-bold text-[#8B5CF6]">{initials}</span>
             </div>
             <button
               onClick={() => { logout(); router.replace("/login"); }}
@@ -216,11 +291,13 @@ export default function Sidebar() {
         ) : (
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#8B5CF6]/20 to-[#6d28d9]/20 flex items-center justify-center shrink-0">
-              <span className="text-[10px] font-bold text-[#8B5CF6]">AU</span>
+              <span className="text-[10px] font-bold text-[#8B5CF6]">{initials}</span>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-semibold text-gray-300 truncate">Admin User</p>
-              <p className="text-[10px] text-gray-600 truncate">Cassette Ops</p>
+              <p className="text-[11px] font-semibold text-gray-300 truncate">{user?.username || "User"}</p>
+              <p className="text-[10px] text-gray-600 truncate">
+                {user?.role === "admin" ? "Administrator" : "Cassette User"}
+              </p>
             </div>
             <button
               onClick={() => { logout(); router.replace("/login"); }}

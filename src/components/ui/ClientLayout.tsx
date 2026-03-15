@@ -6,15 +6,21 @@ import Sidebar from "./Sidebar";
 import MobileNav from "./MobileNav";
 import { isAuthenticated } from "@/lib/auth";
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+const PUBLIC_ROUTES = ["/login", "/signup"];
+
+export default function ClientLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const [checked, setChecked] = useState(false);
 
-  const isLoginPage = pathname === "/login";
+  const isPublicPage = PUBLIC_ROUTES.includes(pathname);
 
   useEffect(() => {
-    if (isLoginPage) {
+    if (isPublicPage) {
       setChecked(true);
       return;
     }
@@ -23,9 +29,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     } else {
       setChecked(true);
     }
-  }, [pathname, isLoginPage, router]);
+  }, [pathname, isPublicPage, router]);
 
-  if (isLoginPage) {
+  if (isPublicPage) {
     return <>{children}</>;
   }
 
@@ -34,7 +40,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <Sidebar />
-      <main className="flex-1 overflow-y-auto md:overflow-hidden flex flex-col pb-16 md:pb-0">{children}</main>
+      <main className="flex-1 overflow-y-auto md:overflow-hidden flex flex-col pb-16 md:pb-0">
+        {children}
+      </main>
       <MobileNav />
     </>
   );

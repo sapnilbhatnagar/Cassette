@@ -1,18 +1,38 @@
-const AUTH_KEY = "cassette-auth";
+const USER_KEY = "cassette-user";
+
+export interface SessionUser {
+  id: string;
+  username: string;
+  email: string;
+  role: "admin" | "user";
+  provider: "credentials" | "google";
+}
 
 export function isAuthenticated(): boolean {
   if (typeof window === "undefined") return false;
-  return localStorage.getItem(AUTH_KEY) === "true";
+  return localStorage.getItem(USER_KEY) !== null;
 }
 
-export function login(username: string, password: string): boolean {
-  if (username === "Admin" && password === "Password") {
-    localStorage.setItem(AUTH_KEY, "true");
-    return true;
+export function getCurrentUser(): SessionUser | null {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
   }
-  return false;
+}
+
+export function setCurrentUser(user: SessionUser): void {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 export function logout(): void {
-  localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(USER_KEY);
+}
+
+export function isAdmin(): boolean {
+  const user = getCurrentUser();
+  return user?.role === "admin";
 }

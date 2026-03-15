@@ -19,7 +19,7 @@ function isActive(pathname: string, href: string): boolean {
 
 export default function MobileNav() {
   const pathname = usePathname();
-  if (pathname === "/login") return null;
+  if (pathname === "/login" || pathname === "/signup") return null;
 
   return (
     <nav className="flex md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#1e1e1e] border-t border-[#27272a]">
