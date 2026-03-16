@@ -1,9 +1,11 @@
 // IndexedDB-backed audio history store.
 // Persists voice and mix audio across browser sessions as raw ArrayBuffers.
+// Each user gets their own database, keyed by user ID.
 
 import type { ScriptVariant } from "@/types/ad-brief";
+import { getCurrentUser } from "@/lib/auth";
 
-const DB_NAME = "cassette-history";
+const DB_PREFIX = "cassette-history";
 const DB_VERSION = 1;
 const STORE_NAME = "entries";
 
@@ -22,9 +24,15 @@ export interface HistoryEntry {
   scriptVariant?: ScriptVariant;
 }
 
+function getDBName(): string {
+  const user = getCurrentUser();
+  if (user) return `${DB_PREFIX}-${user.id}`;
+  return DB_PREFIX;
+}
+
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    const req = indexedDB.open(getDBName(), DB_VERSION);
     req.onupgradeneeded = (e) => {
       const db = (e.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
