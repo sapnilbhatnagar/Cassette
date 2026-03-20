@@ -266,14 +266,9 @@ export default function MixControls({
               onChange={(e) => onDuckingChange(e.target.checked)}
               className="sr-only"
             />
-            <div>
-              <span className="text-[10px] font-semibold text-gray-300 block leading-tight">
-                Auto-Duck
-              </span>
-              <span className="text-[8px] text-gray-600 block leading-tight">
-                Music drops -8dB behind voice
-              </span>
-            </div>
+            <span className="text-[10px] font-semibold text-gray-300">
+              Auto-Duck
+            </span>
           </label>
 
           <div className="w-px h-8 bg-[#27272a] hidden sm:block" />

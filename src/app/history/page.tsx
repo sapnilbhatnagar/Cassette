@@ -338,35 +338,11 @@ export default function HistoryPage() {
     <div className="flex-1 flex flex-col overflow-hidden bg-[#0f0f12]">
       {/* Header */}
       <header className="px-4 py-4 md:px-8 md:py-6 border-b border-[#27272a] shrink-0">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-0.5">
-              Audio Library
-            </p>
-            <h1 className="text-xl md:text-2xl font-bold text-white">
-              History
-            </h1>
-            <p className="text-xs text-gray-500 mt-1 hidden sm:block">
-              Replay, download, or load saved audio back into the workflow.
-            </p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            {/* Stats */}
-            <div className="hidden sm:flex items-center gap-3 text-[10px] text-gray-500">
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]" />
-                {voiceCount} voice
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                {mixCount} mix
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-[#18181b] border border-[#27272a] rounded-lg px-2.5 py-1.5">
-              <Icon name="storage" className="text-sm text-[#a78bfa]" />
-              <span className="font-mono">{entries.length}</span>
-            </div>
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl font-bold text-white">History</h1>
+          <span className="text-[10px] text-gray-500 font-mono">
+            {entries.length} saved
+          </span>
         </div>
 
         {/* Toolbar row */}
@@ -498,8 +474,7 @@ export default function HistoryPage() {
               Delete {selectedIds.size} item{selectedIds.size > 1 ? "s" : ""}?
             </h3>
             <p className="text-gray-500 text-xs text-center mb-6">
-              This action cannot be undone. The audio data will be permanently
-              removed from your browser.
+              This cannot be undone.
             </p>
             <div className="flex items-center gap-3">
               <button
@@ -552,13 +527,8 @@ export default function HistoryPage() {
                 className="text-2xl text-gray-600"
               />
             </div>
-            <p className="text-white font-semibold mb-1">
-              {searchQuery ? "No results found" : "No audio saved yet"}
-            </p>
-            <p className="text-gray-500 text-sm max-w-xs">
-              {searchQuery
-                ? `Nothing matches "${searchQuery}". Try a different search.`
-                : "Generate voice audio or a mix. It will appear here automatically."}
+            <p className="text-gray-400 text-sm">
+              {searchQuery ? "No results" : "No audio yet"}
             </p>
           </div>
         ) : (
@@ -829,7 +799,7 @@ function HistoryCard({
           />
         </button>
 
-        {/* Load to workflow */}
+        {/* Load to mix */}
         <button
           type="button"
           onClick={onLoadToWorkflow}
@@ -839,18 +809,10 @@ function HistoryCard({
               ? "bg-green-500/10 border-green-500/20 text-green-400"
               : "bg-transparent border-[#27272a] text-gray-500 hover:border-[#3f3f46] hover:text-gray-200",
           ].join(" ")}
+          title="Load into mixer"
         >
-          {loadedToWorkflow ? (
-            <>
-              <Icon name="check_circle" className="text-xs text-green-400" />
-              Loaded
-            </>
-          ) : (
-            <>
-              <Icon name="upload" className="text-xs" />
-              To Mix
-            </>
-          )}
+          <Icon name={loadedToWorkflow ? "check_circle" : "upload"} className="text-xs" />
+          {loadedToWorkflow ? "Loaded" : "Load"}
         </button>
 
         {/* Download */}

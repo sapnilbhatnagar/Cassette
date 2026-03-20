@@ -129,7 +129,7 @@ export default function MusicBedSelector({
           <span className="text-[#a78bfa] font-semibold">
             {recommendedIds.length} recommended
           </span>{" "}
-          based on your ad tone. Click the play button to preview.
+          for your tone
         </p>
       )}
 

@@ -323,7 +323,7 @@ export default function MixPage() {
         err instanceof Error ? err.message : "Unknown error during mix.";
       if (msg.includes("Failed to fetch") || msg.includes("No voice buffer"))
         setMixError(
-          "Voice audio is no longer available. Please go back to the Voice page and re-generate."
+          "Voice audio expired. Re-generate on the Voice page."
         );
       else setMixError(msg);
       setMixLog("");
@@ -396,11 +396,10 @@ export default function MixPage() {
             <Icon name="volume_off" className="text-2xl text-gray-500" />
           </div>
           <p className="text-white font-semibold mb-1">
-            No voice audio available
+            No voice audio
           </p>
-          <p className="text-gray-500 text-sm mb-6 max-w-sm mx-auto">
-            Voice audio needs to be generated before mixing. Please go to the
-            Voice page and generate audio in this tab.
+          <p className="text-gray-500 text-sm mb-6">
+            Generate audio on the Voice page first.
           </p>
           <Link
             href="/voice"
@@ -420,14 +419,9 @@ export default function MixPage() {
         {/* Header */}
         <header className="px-4 py-3 md:px-6 md:py-4 border-b border-[#27272a]">
           <div className="flex items-start justify-between gap-2">
-            <div>
-              <p className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-0.5">
-                Audio Production
-              </p>
-              <h1 className="text-xl md:text-2xl font-bold text-white">
-                Audio Mix
-              </h1>
-            </div>
+            <h1 className="text-xl font-bold text-white">
+              Audio Mix
+            </h1>
             <div className="flex items-center gap-2 mt-1">
               {mixedAudioUrl && !isMixing && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20">
@@ -486,20 +480,15 @@ export default function MixPage() {
 
         {/* Scrollable content */}
         <div className="p-4 space-y-4 md:flex-1 md:overflow-y-auto">
-          {/* Info banner when loaded from history without voice audio */}
+          {/* History-loaded notice */}
           {voiceAudioUnavailable && mixedAudioUrl && (
-            <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-              <Icon name="info" className="text-sm text-amber-400 shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-amber-300 font-semibold">
-                  Loaded from history
-                </p>
-                <p className="text-[10px] text-amber-400/70 mt-0.5">
-                  Your previous mix is available below. To create a new mix with different settings, go to{" "}
-                  <Link href="/voice" className="underline hover:text-amber-300">Voice Synthesis</Link>{" "}
-                  first to regenerate the voice audio.
-                </p>
-              </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
+              <Icon name="history" className="text-sm text-amber-400 shrink-0" />
+              <span className="text-[10px] text-amber-300">
+                Loaded from history &mdash;{" "}
+                <Link href="/voice" className="underline hover:text-amber-200">regenerate voice</Link>{" "}
+                to re-mix
+              </span>
             </div>
           )}
           {/* Mobile-only timeline preview */}
@@ -508,12 +497,8 @@ export default function MixPage() {
               <div className="flex items-center gap-2 mb-2">
                 <Icon name="equalizer" className="text-sm text-[#a78bfa]" />
                 <h2 className="text-xs font-bold text-white uppercase tracking-wider">
-                  Live Preview
+                  Preview
                 </h2>
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase bg-red-500/10 text-red-400 border border-red-500/20 ml-auto">
-                  <span className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
-                  Live
-                </span>
               </div>
               <LiveMixPreview
                 isMixing={isMixing}
@@ -550,11 +535,8 @@ export default function MixPage() {
             <div className="flex items-center gap-2 mb-3">
               <Icon name="mic" className="text-sm text-[#a78bfa]" />
               <h2 className="text-xs font-bold text-white uppercase tracking-wider">
-                Voice Tracks
+                Voices
               </h2>
-              <span className="text-[9px] text-gray-500 ml-auto">
-                {voice2AudioUrl ? "2" : "1"} active
-              </span>
             </div>
 
             {/* Track 1 -- primary */}
@@ -562,13 +544,10 @@ export default function MixPage() {
               <div className="w-7 h-7 rounded-full bg-[#8B5CF6]/15 flex items-center justify-center shrink-0">
                 <Icon name="mic" className="text-xs text-[#a78bfa]" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-semibold text-white truncate">
-                  {VOICES.find((v) => v.voiceId === primaryVoiceId)?.name ??
-                    "Primary Voice"}
-                </p>
-                <p className="text-[9px] text-gray-500">Main narrator</p>
-              </div>
+              <p className="text-[11px] font-semibold text-white truncate flex-1 min-w-0">
+                {VOICES.find((v) => v.voiceId === primaryVoiceId)?.name ??
+                  "Primary Voice"}
+              </p>
               <input
                 type="range"
                 min={0}
@@ -594,15 +573,10 @@ export default function MixPage() {
                     className="text-xs text-[#a78bfa]"
                   />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[11px] font-semibold text-white truncate">
-                    {VOICES.find((v) => v.voiceId === voice2Id)?.name ??
-                      "Voice 2"}
-                  </p>
-                  <p className="text-[9px] text-gray-500">
-                    Conversational overlay
-                  </p>
-                </div>
+                <p className="text-[11px] font-semibold text-white truncate flex-1 min-w-0">
+                  {VOICES.find((v) => v.voiceId === voice2Id)?.name ??
+                    "Voice 2"}
+                </p>
                 <input
                   type="range"
                   min={0}
@@ -628,9 +602,6 @@ export default function MixPage() {
               </div>
             ) : (
               <div className="rounded-lg border border-dashed border-[#27272a] p-3">
-                <p className="text-[9px] text-gray-500 mb-2">
-                  Add a second voice for conversational ads
-                </p>
                 <div className="flex items-center gap-2">
                   <select
                     value={voice2Id}
@@ -670,12 +641,6 @@ export default function MixPage() {
 
           {/* Level Controls */}
           <div className="bg-[#18181b] border border-[#27272a]/50 rounded-xl p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Icon name="tune" className="text-sm text-[#a78bfa]" />
-              <h2 className="text-xs font-bold text-white uppercase tracking-wider">
-                Mix Controls
-              </h2>
-            </div>
             <MixControls
               voiceVolume={mixState.voiceVolume}
               musicVolume={mixState.musicVolume}
