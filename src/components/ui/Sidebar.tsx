@@ -8,11 +8,15 @@ import { logout, getCurrentUser, type SessionUser } from "@/lib/auth";
 const SIDEBAR_COLLAPSED_KEY = "cassette-sidebar-collapsed";
 
 const STEPS = [
-  { label: "Script", href: "/script", icon: "edit_note", num: 1 },
-  { label: "Voice", href: "/voice", icon: "record_voice_over", num: 2 },
-  { label: "Mix", href: "/mix", icon: "tune", num: 3 },
-  { label: "Review", href: "/preview", icon: "verified", num: 4 },
-  { label: "Deploy", href: "/localise", icon: "rocket_launch", num: 5 },
+  { label: "Intelligence Collection", href: "/script", icon: "description" },
+  { label: "Voice Selection", href: "/voice", icon: "record_voice_over" },
+  { label: "Audio Mixing", href: "/mix", icon: "tune" },
+  { label: "Peer Review", href: "/preview", icon: "play_circle" },
+  { label: "Deploy", href: "/localise", icon: "cell_tower" },
+];
+
+const UTILITY_LINKS = [
+  { label: "Audio History", href: "/history", icon: "library_music" },
 ];
 
 function getActiveIndex(pathname: string): number {
@@ -22,6 +26,10 @@ function getActiveIndex(pathname: string): number {
   if (pathname.startsWith("/preview")) return 3;
   if (pathname.startsWith("/localise")) return 4;
   return -1;
+}
+
+function isUtilityActive(pathname: string, href: string): boolean {
+  return pathname.startsWith(href);
 }
 
 export default function Sidebar() {
@@ -52,40 +60,50 @@ export default function Sidebar() {
         .join("")
         .toUpperCase()
         .slice(0, 2)
-    : "?";
-
-  const isBottomActive = (href: string) => pathname.startsWith(href);
+    : "??";
 
   return (
     <aside
-      className={`${collapsed ? "w-[56px]" : "w-56"} hidden md:flex flex-col shrink-0 h-full bg-[#111113] border-r border-[#1e1e22] transition-all duration-200 relative`}
+      className={`${collapsed ? "w-[60px]" : "w-64"} hidden md:flex flex-col shrink-0 h-full bg-[#1e1e1e] border-r border-[#27272a] transition-all duration-300 relative`}
     >
       {/* Logo */}
-      <div className={`h-14 flex items-center shrink-0 ${collapsed ? "justify-center" : "px-4"}`}>
-        <Link href="/" className="flex items-center gap-2 min-w-0">
-          <div className="w-7 h-7 bg-gradient-to-br from-[#8B5CF6] to-[#6d28d9] rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-[#8B5CF6]/20">
-            <span className="material-symbols-outlined text-white text-sm">graphic_eq</span>
+      <div className={`h-14 flex items-center shrink-0 ${collapsed ? "justify-center px-2" : "px-5"}`}>
+        <Link href="/" className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 bg-[#8B5CF6] rounded-lg flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-white text-lg">graphic_eq</span>
           </div>
           {!collapsed && (
-            <span className="text-sm font-bold tracking-tight text-white">Cassette</span>
+            <span className="text-base font-bold tracking-tight text-white whitespace-nowrap">Cassette</span>
           )}
         </Link>
+        {!collapsed && (
+          <button
+            onClick={toggleCollapsed}
+            className="ml-auto w-6 h-6 rounded-md hover:bg-white/5 flex items-center justify-center transition-colors shrink-0"
+            aria-label="Collapse sidebar"
+          >
+            <span className="material-symbols-outlined text-gray-600 text-base">chevron_left</span>
+          </button>
+        )}
+        {collapsed && (
+          <button
+            onClick={toggleCollapsed}
+            className="absolute -right-3 top-[18px] w-6 h-6 rounded-full bg-[#1e1e1e] border border-[#27272a] flex items-center justify-center hover:bg-[#27272a] transition-colors z-20"
+            aria-label="Expand sidebar"
+          >
+            <span className="material-symbols-outlined text-gray-400 text-xs">chevron_right</span>
+          </button>
+        )}
       </div>
 
-      {/* Collapse toggle */}
-      <button
-        onClick={toggleCollapsed}
-        className={`absolute top-[18px] -right-3 w-5 h-5 rounded-full bg-[#111113] border border-[#27272a] flex items-center justify-center hover:bg-[#1e1e22] transition-colors z-20 ${collapsed ? "" : ""}`}
-        aria-label={collapsed ? "Expand" : "Collapse"}
-      >
-        <span className="material-symbols-outlined text-gray-500 text-[10px]">
-          {collapsed ? "chevron_right" : "chevron_left"}
-        </span>
-      </button>
-
-      {/* Workflow steps */}
-      <nav className={`flex-1 ${collapsed ? "px-1.5 pt-4" : "px-2 pt-4"}`}>
-        <div className="space-y-0.5">
+      {/* Steps */}
+      <nav className={`flex-1 ${collapsed ? "px-2 pt-4" : "px-3 pt-4"}`}>
+        {!collapsed && (
+          <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest px-3 mb-3">
+            Workflow
+          </p>
+        )}
+        <div className={collapsed ? "space-y-2" : "space-y-1"}>
           {STEPS.map((step, i) => {
             const isActive = i === activeIndex;
             const isPast = activeIndex > i;
@@ -97,22 +115,20 @@ export default function Sidebar() {
                   href={step.href}
                   title={step.label}
                   className={[
-                    "relative flex items-center justify-center w-10 h-10 mx-auto rounded-xl transition-all duration-200",
-                    isActive
-                      ? "bg-[#8B5CF6]/15"
-                      : "hover:bg-white/5",
+                    "relative flex items-center justify-center w-9 h-9 mx-auto rounded-lg transition-all duration-200",
+                    isActive ? "bg-[#8B5CF6]/10" : "hover:bg-white/5",
                   ].join(" ")}
                 >
                   <span
                     className={[
-                      "material-symbols-outlined text-lg",
+                      "material-symbols-outlined text-xl",
                       isActive ? "text-[#8B5CF6]" : isPast ? "text-gray-400" : "text-gray-600",
                     ].join(" ")}
                   >
                     {step.icon}
                   </span>
                   {isActive && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#8B5CF6]" />
+                    <span className="absolute -right-0.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-[#8B5CF6]" />
                   )}
                 </Link>
               );
@@ -123,124 +139,132 @@ export default function Sidebar() {
                 key={step.href}
                 href={step.href}
                 className={[
-                  "relative flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200",
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                   isActive
                     ? "bg-[#8B5CF6]/10 text-white"
                     : isPast
                       ? "text-gray-400 hover:bg-white/5"
-                      : "text-gray-600 hover:bg-white/5 hover:text-gray-400",
+                      : "text-gray-500 hover:bg-white/5",
                 ].join(" ")}
               >
-                {isActive && (
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#8B5CF6]" />
-                )}
-                <div className={[
-                  "w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0",
-                  isActive
-                    ? "bg-[#8B5CF6] text-white"
-                    : isPast
-                      ? "bg-[#27272a] text-gray-400"
-                      : "bg-[#1e1e22] text-gray-600",
-                ].join(" ")}>
-                  {isPast ? (
-                    <span className="material-symbols-outlined text-xs text-green-400">check</span>
-                  ) : (
-                    step.num
-                  )}
-                </div>
-                <span>{step.label}</span>
+                <span
+                  className={[
+                    "material-symbols-outlined text-xl",
+                    isActive ? "text-[#8B5CF6]" : isPast ? "text-gray-400" : "text-gray-600",
+                  ].join(" ")}
+                >
+                  {step.icon}
+                </span>
+                {step.label}
               </Link>
             );
           })}
         </div>
       </nav>
 
-      {/* Bottom links */}
-      <div className={`shrink-0 border-t border-[#1e1e22] ${collapsed ? "px-1.5 py-2" : "px-2 py-2"}`}>
-        <div className={collapsed ? "space-y-0.5" : "space-y-0.5"}>
-          {/* History */}
-          {collapsed ? (
-            <Link
-              href="/history"
-              title="History"
-              className={[
-                "relative flex items-center justify-center w-10 h-10 mx-auto rounded-xl transition-all duration-200",
-                isBottomActive("/history") ? "bg-[#8B5CF6]/15" : "hover:bg-white/5",
-              ].join(" ")}
-            >
-              <span className={["material-symbols-outlined text-lg", isBottomActive("/history") ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
-                history
-              </span>
-            </Link>
-          ) : (
-            <Link
-              href="/history"
-              className={[
-                "flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200",
-                isBottomActive("/history") ? "bg-[#8B5CF6]/10 text-white" : "text-gray-500 hover:bg-white/5",
-              ].join(" ")}
-            >
-              <span className={["material-symbols-outlined text-lg", isBottomActive("/history") ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
-                history
-              </span>
-              History
-            </Link>
-          )}
+      {/* Utility Links */}
+      <div className={`shrink-0 border-t border-[#27272a] ${collapsed ? "px-2 pt-3 pb-1" : "px-3 pt-3 pb-1"}`}>
+        {!collapsed && (
+          <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-widest px-3 mb-2">
+            Library
+          </p>
+        )}
+        <div className={collapsed ? "space-y-2" : "space-y-1"}>
+          {UTILITY_LINKS.map((link) => {
+            const isActive = isUtilityActive(pathname, link.href);
+            if (collapsed) {
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  title={link.label}
+                  className={[
+                    "relative flex items-center justify-center w-9 h-9 mx-auto rounded-lg transition-all duration-200",
+                    isActive ? "bg-[#8B5CF6]/10" : "hover:bg-white/5",
+                  ].join(" ")}
+                >
+                  <span className={["material-symbols-outlined text-xl", isActive ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+                    {link.icon}
+                  </span>
+                  {isActive && <span className="absolute -right-0.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-[#8B5CF6]" />}
+                </Link>
+              );
+            }
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={[
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  isActive ? "bg-[#8B5CF6]/10 text-white" : "text-gray-500 hover:bg-white/5",
+                ].join(" ")}
+              >
+                <span className={["material-symbols-outlined text-xl", isActive ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+                  {link.icon}
+                </span>
+                {link.label}
+              </Link>
+            );
+          })}
 
-          {/* Admin (admin only) */}
+          {/* Admin link (only for admin users) */}
           {user?.role === "admin" && (
-            collapsed ? (
-              <Link
-                href="/admin"
-                title="Admin"
-                className={[
-                  "relative flex items-center justify-center w-10 h-10 mx-auto rounded-xl transition-all duration-200",
-                  pathname === "/admin" ? "bg-[#8B5CF6]/15" : "hover:bg-white/5",
-                ].join(" ")}
-              >
-                <span className={["material-symbols-outlined text-lg", pathname === "/admin" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
-                  shield_person
-                </span>
-              </Link>
-            ) : (
-              <Link
-                href="/admin"
-                className={[
-                  "flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200",
-                  pathname === "/admin" ? "bg-[#8B5CF6]/10 text-white" : "text-gray-500 hover:bg-white/5",
-                ].join(" ")}
-              >
-                <span className={["material-symbols-outlined text-lg", pathname === "/admin" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
-                  shield_person
-                </span>
-                Admin
-              </Link>
-            )
+            <>
+              {collapsed ? (
+                <Link
+                  href="/admin"
+                  title="Admin Dashboard"
+                  className={[
+                    "relative flex items-center justify-center w-9 h-9 mx-auto rounded-lg transition-all duration-200",
+                    pathname === "/admin" ? "bg-[#8B5CF6]/10" : "hover:bg-white/5",
+                  ].join(" ")}
+                >
+                  <span className={["material-symbols-outlined text-xl", pathname === "/admin" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+                    admin_panel_settings
+                  </span>
+                  {pathname === "/admin" && <span className="absolute -right-0.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-[#8B5CF6]" />}
+                </Link>
+              ) : (
+                <Link
+                  href="/admin"
+                  className={[
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    pathname === "/admin" ? "bg-[#8B5CF6]/10 text-white" : "text-gray-500 hover:bg-white/5",
+                  ].join(" ")}
+                >
+                  <span className={["material-symbols-outlined text-xl", pathname === "/admin" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+                    admin_panel_settings
+                  </span>
+                  Admin
+                </Link>
+              )}
+            </>
           )}
 
-          {/* Settings */}
+          {/* Settings link */}
           {collapsed ? (
             <Link
               href="/settings"
               title="Settings"
               className={[
-                "relative flex items-center justify-center w-10 h-10 mx-auto rounded-xl transition-all duration-200",
-                pathname === "/settings" ? "bg-[#8B5CF6]/15" : "hover:bg-white/5",
+                "relative flex items-center justify-center w-9 h-9 mx-auto rounded-lg transition-all duration-200",
+                pathname === "/settings" ? "bg-[#8B5CF6]/10" : "hover:bg-white/5",
               ].join(" ")}
             >
-              <span className={["material-symbols-outlined text-lg", pathname === "/settings" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+              <span className={["material-symbols-outlined text-xl", pathname === "/settings" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
                 settings
               </span>
+              {pathname === "/settings" && <span className="absolute -right-0.5 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-[#8B5CF6]" />}
             </Link>
           ) : (
             <Link
               href="/settings"
               className={[
-                "flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200",
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                 pathname === "/settings" ? "bg-[#8B5CF6]/10 text-white" : "text-gray-500 hover:bg-white/5",
               ].join(" ")}
             >
-              <span className={["material-symbols-outlined text-lg", pathname === "/settings" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
+              <span className={["material-symbols-outlined text-xl", pathname === "/settings" ? "text-[#8B5CF6]" : "text-gray-600"].join(" ")}>
                 settings
               </span>
               Settings
@@ -249,35 +273,38 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* User */}
-      <div className={`shrink-0 border-t border-[#1e1e22] ${collapsed ? "p-2" : "px-3 py-2.5"}`}>
+      {/* Footer */}
+      <div className={`shrink-0 border-t border-[#27272a] ${collapsed ? "p-2 flex flex-col items-center gap-2" : "px-4 py-3"}`}>
         {collapsed ? (
-          <div className="flex flex-col items-center gap-1.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#8B5CF6]/25 to-[#6d28d9]/25 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-[#a78bfa]">{initials}</span>
+          <>
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#8B5CF6]/20 to-[#6d28d9]/20 flex items-center justify-center">
+              <span className="text-[10px] font-bold text-[#8B5CF6]">{initials}</span>
             </div>
             <button
               onClick={() => { logout(); router.replace("/login"); }}
               title="Sign out"
-              className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-white/5 transition-colors"
+              className="w-9 h-9 mx-auto rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors"
             >
-              <span className="material-symbols-outlined text-gray-600 text-lg">logout</span>
+              <span className="material-symbols-outlined text-gray-600 text-xl">logout</span>
             </button>
-          </div>
+          </>
         ) : (
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#8B5CF6]/25 to-[#6d28d9]/25 flex items-center justify-center shrink-0">
-              <span className="text-[10px] font-bold text-[#a78bfa]">{initials}</span>
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#8B5CF6]/20 to-[#6d28d9]/20 flex items-center justify-center shrink-0">
+              <span className="text-[10px] font-bold text-[#8B5CF6]">{initials}</span>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[12px] font-medium text-gray-300 truncate">{user?.username || "User"}</p>
+              <p className="text-[11px] font-semibold text-gray-300 truncate">{user?.username || "User"}</p>
+              <p className="text-[10px] text-gray-600 truncate">
+                {user?.role === "admin" ? "Administrator" : "Cassette User"}
+              </p>
             </div>
             <button
               onClick={() => { logout(); router.replace("/login"); }}
               title="Sign out"
               className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors shrink-0"
             >
-              <span className="material-symbols-outlined text-gray-600 text-sm">logout</span>
+              <span className="material-symbols-outlined text-gray-600 text-base">logout</span>
             </button>
           </div>
         )}
