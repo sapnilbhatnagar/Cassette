@@ -51,17 +51,21 @@ export async function runComplianceChecks(params: {
   let audioBuffer: AudioBuffer | null = null;
   let fetchError: string | null = null;
 
+  let ctx: AudioContext | null = null;
   try {
     const response = await fetch(audioUrl);
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
     const arrayBuffer = await response.arrayBuffer();
-    const ctx = new AudioContext();
+    ctx = new AudioContext();
     audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-    await ctx.close();
   } catch (err) {
     fetchError = err instanceof Error ? err.message : "Unknown error";
+  } finally {
+    if (ctx && ctx.state !== "closed") {
+      await ctx.close().catch(() => {});
+    }
   }
 
   const checks: ComplianceCheck[] = [];

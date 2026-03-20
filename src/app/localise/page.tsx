@@ -66,6 +66,15 @@ export default function LocalisePage() {
   const [showMapMobile, setShowMapMobile] = useState(false);
   const [isBroadcasting, setIsBroadcasting] = useState(false);
 
+  // Revoke audio blob URLs on unmount
+  useEffect(() => {
+    return () => {
+      variants.forEach((v) => {
+        if (v.audioUrl) URL.revokeObjectURL(v.audioUrl);
+      });
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const rawScript = localStorage.getItem(STORAGE_KEYS.CONFIRMED_SCRIPT);
     if (rawScript) {

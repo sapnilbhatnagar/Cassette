@@ -270,17 +270,19 @@ export default function MixPage() {
     (bedId: string) => {
       setSelectedBedId(bedId);
       localStorage.setItem(STORAGE_KEYS.SELECTED_BED, bedId);
+      if (mixedAudioUrl) URL.revokeObjectURL(mixedAudioUrl);
       setMixedAudioUrl("");
       setMixError(null);
       setMixLog("");
       handleStop();
     },
-    [handleStop]
+    [handleStop, mixedAudioUrl]
   );
 
   const handleMix = useCallback(async () => {
     if (!voiceAudioUrl || !mixerRef.current) return;
     setMixError(null);
+    if (mixedAudioUrl) URL.revokeObjectURL(mixedAudioUrl);
     setMixedAudioUrl("");
     setIsMixing(true);
     handleStop();
@@ -334,6 +336,7 @@ export default function MixPage() {
     voiceAudioUrl,
     selectedBedId,
     mixState,
+    mixedAudioUrl,
     handleStop,
     confirmedScript,
     primaryVoiceId,

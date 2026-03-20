@@ -106,6 +106,7 @@ export async function saveBlobUrlToHistory(
 
 /** Load a history entry's audio as a temporary blob URL (caller must revoke when done). */
 export function createBlobUrlFromEntry(entry: HistoryEntry): string {
-  const blob = new Blob([entry.audioData], { type: "audio/mpeg" });
+  const mimeType = entry.entryType === "mix" ? "audio/wav" : "audio/mpeg";
+  const blob = new Blob([entry.audioData], { type: mimeType });
   return URL.createObjectURL(blob);
 }

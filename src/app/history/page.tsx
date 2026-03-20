@@ -108,6 +108,16 @@ export default function HistoryPage() {
     loadEntries();
   }, [loadEntries]);
 
+  /* ── Stop playback on unmount ── */
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   /* ── Playback progress polling ── */
   useEffect(() => {
     if (!playing) {
@@ -223,7 +233,7 @@ export default function HistoryPage() {
     const url = createBlobUrlFromEntry(entry);
     const a = document.createElement("a");
     a.href = url;
-    const ext = entry.entryType === "mix" ? "mp3" : "mp3";
+    const ext = entry.entryType === "mix" ? "wav" : "mp3";
     const name = (entry.scriptTitle || "audio")
       .replace(/[^a-zA-Z0-9 -]/g, "")
       .replace(/\s+/g, "-")

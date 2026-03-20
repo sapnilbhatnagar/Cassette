@@ -74,6 +74,7 @@ export default function VoicePage() {
     if (!confirmedScript || !selectedVoiceId) return;
     setError(null);
     setIsSynthesizing(true);
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl("");
 
     try {
@@ -95,7 +96,7 @@ export default function VoicePage() {
     } finally {
       setIsSynthesizing(false);
     }
-  }, [confirmedScript, selectedVoiceId, synthesize, voiceSettings]);
+  }, [confirmedScript, selectedVoiceId, synthesize, voiceSettings, audioUrl]);
 
   const handleTryScript = useCallback(
     async (voiceId: string) => {
@@ -109,8 +110,9 @@ export default function VoicePage() {
       try {
         const url = await synthesize(previewText, voiceId, voiceSettings);
         const tempAudio = new Audio(url);
-        tempAudio.play().catch((e) => console.error("[TryScript] play error:", e));
         tempAudio.onended = () => URL.revokeObjectURL(url);
+        tempAudio.onerror = () => URL.revokeObjectURL(url);
+        tempAudio.play().catch(() => URL.revokeObjectURL(url));
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Failed to generate preview. Please try again."
