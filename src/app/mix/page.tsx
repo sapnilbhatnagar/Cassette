@@ -101,6 +101,11 @@ export default function MixPage() {
         /* malformed */
       }
     }
+    // Restore previously selected music bed (e.g. loaded from history)
+    const savedBed = localStorage.getItem(STORAGE_KEYS.SELECTED_BED);
+    if (savedBed && MUSIC_BEDS.find((b) => b.id === savedBed)) {
+      setSelectedBedId(savedBed);
+    }
     const savedAudioUrl = localStorage.getItem(STORAGE_KEYS.GENERATED_AUDIO);
     const validateAndSet = async () => {
       if (savedAudioUrl && savedAudioUrl.startsWith("blob:")) {
@@ -380,7 +385,10 @@ export default function MixPage() {
     );
   }
 
-  if (voiceAudioUnavailable || (!voiceAudioUrl && !confirmedScript)) {
+  if (
+    (voiceAudioUnavailable || (!voiceAudioUrl && !confirmedScript)) &&
+    !mixedAudioUrl
+  ) {
     return (
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="rounded-2xl border border-dashed border-[#27272a] p-8 sm:p-12 text-center max-w-md bg-[#18181b]">
@@ -478,6 +486,22 @@ export default function MixPage() {
 
         {/* Scrollable content */}
         <div className="p-4 space-y-4 md:flex-1 md:overflow-y-auto">
+          {/* Info banner when loaded from history without voice audio */}
+          {voiceAudioUnavailable && mixedAudioUrl && (
+            <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+              <Icon name="info" className="text-sm text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] text-amber-300 font-semibold">
+                  Loaded from history
+                </p>
+                <p className="text-[10px] text-amber-400/70 mt-0.5">
+                  Your previous mix is available below. To create a new mix with different settings, go to{" "}
+                  <Link href="/voice" className="underline hover:text-amber-300">Voice Synthesis</Link>{" "}
+                  first to regenerate the voice audio.
+                </p>
+              </div>
+            </div>
+          )}
           {/* Mobile-only timeline preview */}
           <div className="md:hidden">
             <div className="bg-[#18181b] border border-[#27272a] rounded-xl p-3">

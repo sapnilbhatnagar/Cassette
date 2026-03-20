@@ -251,11 +251,20 @@ export default function HistoryPage() {
         setLoadedToWorkflow(entry.id);
         router.push("/mix");
       } else {
+        // Mix entries: load into the mix screen so the user can experiment
         localStorage.setItem(STORAGE_KEYS.GENERATED_MIX, url);
         if (entry.bedId)
           localStorage.setItem(STORAGE_KEYS.SELECTED_BED, entry.bedId);
+        if (entry.voiceId)
+          localStorage.setItem(STORAGE_KEYS.SELECTED_VOICE, entry.voiceId);
+        if (entry.scriptVariant) {
+          localStorage.setItem(
+            STORAGE_KEYS.CONFIRMED_SCRIPT,
+            JSON.stringify(entry.scriptVariant)
+          );
+        }
         setLoadedToWorkflow(entry.id);
-        router.push("/preview");
+        router.push("/mix");
       }
     },
     [router]
@@ -839,7 +848,7 @@ function HistoryCard({
           ) : (
             <>
               <Icon name="upload" className="text-xs" />
-              {isVoice ? "To Mix" : "To Review"}
+              To Mix
             </>
           )}
         </button>
