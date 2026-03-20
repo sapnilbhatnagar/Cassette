@@ -480,17 +480,7 @@ export default function MixPage() {
 
         {/* Scrollable content */}
         <div className="p-4 space-y-4 md:flex-1 md:overflow-y-auto">
-          {/* History-loaded notice */}
-          {voiceAudioUnavailable && mixedAudioUrl && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20">
-              <Icon name="history" className="text-sm text-amber-400 shrink-0" />
-              <span className="text-[10px] text-amber-300">
-                Loaded from history &mdash;{" "}
-                <Link href="/voice" className="underline hover:text-amber-200">regenerate voice</Link>{" "}
-                to re-mix
-              </span>
-            </div>
-          )}
+          {/* spacer */}
           {/* Mobile-only timeline preview */}
           <div className="md:hidden">
             <div className="bg-[#18181b] border border-[#27272a] rounded-xl p-3">

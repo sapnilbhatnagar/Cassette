@@ -30,7 +30,6 @@ export default function MusicBedCard({
   const [previewCurrentTime, setPreviewCurrentTime] = useState(0);
   const animRef = useRef<number>(0);
 
-  // Poll progress while playing
   useEffect(() => {
     if (!isPlaying) {
       cancelAnimationFrame(animRef.current);
@@ -91,7 +90,7 @@ export default function MusicBedCard({
     setPreviewCurrentTime(0);
   }, []);
 
-  const formatPreviewTime = (seconds: number): string => {
+  const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
@@ -100,16 +99,11 @@ export default function MusicBedCard({
   return (
     <div
       className={[
-        "relative flex flex-col gap-2 p-3 rounded-xl border cursor-pointer transition-all duration-150 group",
+        "relative flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition-all duration-150 group",
         selected
-          ? "border-transparent text-white"
-          : "bg-[#1f2937] border-[#27272a] hover:bg-[#27272a] hover:border-[#3f3f46]",
+          ? "border-[#8B5CF6] bg-[#8B5CF6]/10"
+          : "border-[#27272a] bg-[#18181b] hover:border-[#3f3f46]",
       ].join(" ")}
-      style={
-        selected
-          ? { background: "linear-gradient(135deg, #6d28d9, #8b5cf6)" }
-          : undefined
-      }
       onClick={onSelect}
       role="button"
       aria-pressed={selected}
@@ -121,7 +115,6 @@ export default function MusicBedCard({
         }
       }}
     >
-      {/* Hidden audio element */}
       <audio
         ref={audioRef}
         src={`/music-beds/${bed.filename}`}
@@ -130,127 +123,74 @@ export default function MusicBedCard({
         onEnded={handleAudioEnded}
       />
 
-      {/* Top row: icon + play button + checkmark */}
-      <div className="flex items-center justify-between">
-        {/* Music note icon */}
-        <div
-          className={[
-            "w-7 h-7 rounded-lg flex items-center justify-center",
-            selected ? "bg-white/20" : "bg-[#27272a]",
-          ].join(" ")}
-        >
-          <Icon
-            name="music_note"
-            filled
-            className={[
-              "text-base",
-              selected ? "text-white" : "text-[#a78bfa]",
-            ].join(" ")}
-          />
-        </div>
+      {/* Play button */}
+      <button
+        type="button"
+        onClick={handleTogglePlay}
+        aria-label={isPlaying ? `Stop ${bed.name}` : `Preview ${bed.name}`}
+        disabled={isUnavailable}
+        className={[
+          "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all duration-150 relative z-10",
+          isUnavailable
+            ? "bg-[#27272a] text-gray-600 cursor-default"
+            : isPlaying
+              ? "bg-[#8B5CF6] text-white shadow-lg shadow-[#8B5CF6]/30"
+              : selected
+                ? "bg-[#8B5CF6]/20 text-[#a78bfa] hover:bg-[#8B5CF6]/30"
+                : "bg-[#27272a] text-gray-400 hover:text-white hover:bg-[#3f3f46]",
+        ].join(" ")}
+      >
+        <Icon
+          name={
+            isUnavailable
+              ? "volume_off"
+              : isPlaying
+                ? "stop"
+                : "play_arrow"
+          }
+          filled
+          className="text-base"
+        />
+      </button>
 
+      {/* Info */}
+      <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          {/* Play/Pause button — always visible */}
-          <button
-            type="button"
-            onClick={handleTogglePlay}
-            aria-label={isPlaying ? `Stop ${bed.name}` : `Preview ${bed.name}`}
-            disabled={isUnavailable}
-            className={[
-              "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 relative z-10",
-              isUnavailable
-                ? "bg-[#3f3f46] text-gray-500 cursor-default"
-                : isPlaying
-                  ? selected
-                    ? "bg-white/30 hover:bg-white/40 text-white"
-                    : "bg-red-500 hover:bg-red-600 text-white"
-                  : selected
-                    ? "bg-white/20 hover:bg-white/30 text-white"
-                    : "bg-[#27272a] hover:bg-[#3f3f46] text-gray-400 hover:text-white",
-            ].join(" ")}
-          >
-            <Icon
-              name={
-                isUnavailable
-                  ? "volume_off"
-                  : isPlaying
-                    ? "stop"
-                    : "play_arrow"
-              }
-              filled
-              className="text-sm"
-            />
-          </button>
-
-          {/* Selected checkmark */}
+          <p className={[
+            "font-semibold text-[13px] leading-tight truncate",
+            selected ? "text-white" : "text-gray-200",
+          ].join(" ")}>
+            {bed.name}
+          </p>
           {selected && (
-            <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-md">
-              <Icon name="check" className="text-sm text-[#7c3aed]" />
-            </div>
+            <Icon name="check_circle" filled className="text-sm text-[#8B5CF6] shrink-0" />
+          )}
+          {recommended && !selected && (
+            <span className="text-[7px] font-bold text-[#a78bfa] bg-[#7c3aed]/15 px-1 py-px rounded shrink-0">
+              REC
+            </span>
           )}
         </div>
-      </div>
 
-      {/* Track info */}
-      <div className="min-w-0">
-        <p className="font-bold text-sm leading-tight truncate text-white">
-          {bed.name}
-        </p>
-        <p
-          className={[
-            "text-[11px] mt-0.5 capitalize truncate",
-            selected ? "text-white/70" : "text-gray-400",
-          ].join(" ")}
-        >
-          {bed.genre}&nbsp;&middot;&nbsp;{bed.bpm} BPM&nbsp;&middot;&nbsp;
-          {formatDuration(bed.durationSeconds)}
-        </p>
-      </div>
-
-      {/* Preview progress bar — shown when playing */}
-      {isPlaying && (
-        <div className="mt-1">
-          <div
-            className={[
-              "h-1 rounded-full overflow-hidden",
-              selected ? "bg-white/20" : "bg-[#27272a]",
-            ].join(" ")}
-          >
-            <div
-              className={[
-                "h-full rounded-full transition-all duration-100",
-                selected ? "bg-white/60" : "bg-[#8B5CF6]",
-              ].join(" ")}
-              style={{ width: `${previewProgress * 100}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-between mt-0.5">
-            <span
-              className={[
-                "text-[8px] font-mono",
-                selected ? "text-white/50" : "text-gray-600",
-              ].join(" ")}
-            >
-              {formatPreviewTime(previewCurrentTime)}
-            </span>
-            <span
-              className={[
-                "text-[8px] font-mono",
-                selected ? "text-white/50" : "text-gray-600",
-              ].join(" ")}
-            >
-              {formatDuration(bed.durationSeconds)}
+        {/* Progress bar when playing, metadata when not */}
+        {isPlaying ? (
+          <div className="flex items-center gap-2 mt-1">
+            <div className="flex-1 h-1 rounded-full bg-[#27272a] overflow-hidden">
+              <div
+                className="h-full rounded-full bg-[#8B5CF6] transition-all duration-100"
+                style={{ width: `${previewProgress * 100}%` }}
+              />
+            </div>
+            <span className="text-[8px] font-mono text-gray-500 shrink-0">
+              {formatTime(previewCurrentTime)}
             </span>
           </div>
-        </div>
-      )}
-
-      {/* Recommended badge */}
-      {recommended && !selected && (
-        <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider text-[#a78bfa] bg-[#7c3aed]/20 border border-[#7c3aed]/30 rounded px-1.5 py-0.5 pointer-events-none">
-          Rec
-        </span>
-      )}
+        ) : (
+          <p className="text-[10px] text-gray-500 mt-0.5 truncate capitalize">
+            {bed.genre} &middot; {bed.bpm} &middot; {formatDuration(bed.durationSeconds)}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

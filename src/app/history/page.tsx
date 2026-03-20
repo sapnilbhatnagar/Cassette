@@ -651,27 +651,23 @@ function HistoryCard({
         </button>
       )}
 
-      {/* Top bar: type + timestamp */}
+      {/* Top bar: icon + timestamp */}
       <div
         className={[
-          "px-4 pt-4 flex items-center justify-between mb-2",
+          "px-4 pt-3 flex items-center justify-between mb-1.5",
           selectMode ? "pl-10" : "",
         ].join(" ")}
       >
-        <span
-          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest"
-          style={{
-            color: accentColor,
-            backgroundColor: `${accentColor}15`,
-          }}
+        <div
+          className="w-6 h-6 rounded-md flex items-center justify-center"
+          style={{ backgroundColor: `${accentColor}15` }}
         >
           <Icon
-            name={isVoice ? "mic" : "merge"}
-            className="text-[9px]"
+            name={isVoice ? "mic" : "tune"}
+            className="text-xs"
             style={{ color: accentColor }}
           />
-          {isVoice ? "Voice" : "Mix"}
-        </span>
+        </div>
         <span
           className="text-[9px] text-gray-600"
           title={formatAbsoluteDate(entry.createdAt)}
@@ -799,7 +795,7 @@ function HistoryCard({
           />
         </button>
 
-        {/* Load to mix */}
+        {/* Use */}
         <button
           type="button"
           onClick={onLoadToWorkflow}
@@ -807,12 +803,11 @@ function HistoryCard({
             "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold border transition-all duration-150",
             loadedToWorkflow
               ? "bg-green-500/10 border-green-500/20 text-green-400"
-              : "bg-transparent border-[#27272a] text-gray-500 hover:border-[#3f3f46] hover:text-gray-200",
+              : "bg-[#8B5CF6]/10 border-[#8B5CF6]/20 text-[#a78bfa] hover:bg-[#8B5CF6]/15",
           ].join(" ")}
-          title="Load into mixer"
         >
-          <Icon name={loadedToWorkflow ? "check_circle" : "upload"} className="text-xs" />
-          {loadedToWorkflow ? "Loaded" : "Load"}
+          <Icon name={loadedToWorkflow ? "check_circle" : "open_in_new"} className="text-xs" />
+          {loadedToWorkflow ? "Opened" : "Use"}
         </button>
 
         {/* Download */}

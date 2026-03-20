@@ -15,7 +15,6 @@ interface MixControlsProps {
   onDuckingChange: (v: boolean) => void;
   onFormatChange: (f: OutputFormat) => void;
   onMix: () => void;
-  onSaveDraft?: () => void;
   onDownload?: (format: OutputFormat) => void;
   loading: boolean;
   disabled?: boolean;
@@ -185,7 +184,6 @@ export default function MixControls({
   onDuckingChange,
   onFormatChange,
   onMix,
-  onSaveDraft,
   onDownload,
   loading,
   disabled,
@@ -403,16 +401,6 @@ export default function MixControls({
               Render Mix
             </>
           )}
-        </button>
-
-        {/* Secondary actions */}
-        <button
-          type="button"
-          onClick={onSaveDraft}
-          className="h-[44px] px-3 rounded-xl text-[10px] font-bold text-gray-500 border border-[#27272a] hover:border-[#3f3f46] hover:text-gray-300 flex items-center gap-1.5 transition-all"
-        >
-          <Icon name="save" className="text-xs" />
-          Draft
         </button>
 
         {mixedAudioUrl && (
