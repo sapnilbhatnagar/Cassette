@@ -411,12 +411,69 @@ export default function MixPage() {
       <section className="w-full md:w-[420px] lg:w-[460px] md:shrink-0 flex flex-col border-b md:border-b-0 md:border-r border-[#27272a]">
         {/* Header */}
         <header className="px-4 py-3 md:px-6 md:py-4 border-b border-[#27272a]">
-          <p className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-0.5">
-            Audio Production
-          </p>
-          <h1 className="text-xl md:text-2xl font-bold text-white">
-            Audio Mix Control
-          </h1>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-0.5">
+                Audio Production
+              </p>
+              <h1 className="text-xl md:text-2xl font-bold text-white">
+                Audio Mix
+              </h1>
+            </div>
+            <div className="flex items-center gap-2 mt-1">
+              {mixedAudioUrl && !isMixing && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                  Mixed
+                </span>
+              )}
+              {isMixing && (
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#8B5CF6]/10 text-[#a78bfa] border border-[#8B5CF6]/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#a78bfa] animate-pulse" />
+                  Rendering
+                </span>
+              )}
+            </div>
+          </div>
+          {/* Volume presets */}
+          <div className="flex items-center gap-2 mt-3">
+            <span className="text-[9px] font-bold text-gray-600 uppercase tracking-wider shrink-0">
+              Presets
+            </span>
+            {[
+              { label: "Voice Forward", voice: 100, music: 25, duck: true },
+              { label: "Balanced", voice: 85, music: 50, duck: true },
+              { label: "Music Heavy", voice: 70, music: 70, duck: false },
+            ].map((preset) => (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => {
+                  setMixState((s) => ({
+                    ...s,
+                    voiceVolume: preset.voice,
+                    musicVolume: preset.music,
+                    ducking: preset.duck,
+                  }));
+                  mixerRef.current?.setVoiceVolume(preset.voice / 100);
+                  const effectiveMusic = preset.duck
+                    ? (preset.music / 100) * 0.4
+                    : preset.music / 100;
+                  mixerRef.current?.setMusicVolume(effectiveMusic);
+                }}
+                className={[
+                  "px-2.5 py-1 rounded-lg text-[9px] font-medium border transition-all",
+                  mixState.voiceVolume === preset.voice &&
+                  mixState.musicVolume === preset.music &&
+                  mixState.ducking === preset.duck
+                    ? "border-[#8B5CF6]/40 bg-[#8B5CF6]/10 text-[#a78bfa]"
+                    : "border-[#27272a] text-gray-500 hover:text-gray-300 hover:border-[#3f3f46]",
+                ].join(" ")}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
         </header>
 
         {/* Scrollable content */}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import Icon from "@/components/ui/Icon";
 import type { MusicBed } from "@/constants/music-beds";
 
@@ -26,10 +26,37 @@ export default function MusicBedCard({
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isUnavailable, setIsUnavailable] = useState(false);
+  const [previewProgress, setPreviewProgress] = useState(0);
+  const [previewCurrentTime, setPreviewCurrentTime] = useState(0);
+  const animRef = useRef<number>(0);
+
+  // Poll progress while playing
+  useEffect(() => {
+    if (!isPlaying) {
+      cancelAnimationFrame(animRef.current);
+      return;
+    }
+    let active = true;
+    function tick() {
+      if (!active) return;
+      const audio = audioRef.current;
+      if (audio && audio.duration > 0) {
+        setPreviewProgress(audio.currentTime / audio.duration);
+        setPreviewCurrentTime(audio.currentTime);
+      }
+      animRef.current = requestAnimationFrame(tick);
+    }
+    animRef.current = requestAnimationFrame(tick);
+    return () => {
+      active = false;
+      cancelAnimationFrame(animRef.current);
+    };
+  }, [isPlaying]);
 
   const handleTogglePlay = useCallback(
     async (e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault();
       const audio = audioRef.current;
       if (!audio) return;
 
@@ -37,6 +64,8 @@ export default function MusicBedCard({
         audio.pause();
         audio.currentTime = 0;
         setIsPlaying(false);
+        setPreviewProgress(0);
+        setPreviewCurrentTime(0);
         return;
       }
 
@@ -58,13 +87,20 @@ export default function MusicBedCard({
 
   const handleAudioEnded = useCallback(() => {
     setIsPlaying(false);
+    setPreviewProgress(0);
+    setPreviewCurrentTime(0);
   }, []);
+
+  const formatPreviewTime = (seconds: number): string => {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
 
   return (
     <div
-      onClick={onSelect}
       className={[
-        "relative flex flex-col gap-2 p-2.5 rounded-xl border cursor-pointer transition-all duration-150",
+        "relative flex flex-col gap-2 p-3 rounded-xl border cursor-pointer transition-all duration-150 group",
         selected
           ? "border-transparent text-white"
           : "bg-[#1f2937] border-[#27272a] hover:bg-[#27272a] hover:border-[#3f3f46]",
@@ -74,6 +110,7 @@ export default function MusicBedCard({
           ? { background: "linear-gradient(135deg, #6d28d9, #8b5cf6)" }
           : undefined
       }
+      onClick={onSelect}
       role="button"
       aria-pressed={selected}
       tabIndex={0}
@@ -93,7 +130,7 @@ export default function MusicBedCard({
         onEnded={handleAudioEnded}
       />
 
-      {/* Top row: icon + checkmark/play button */}
+      {/* Top row: icon + play button + checkmark */}
       <div className="flex items-center justify-between">
         {/* Music note icon */}
         <div
@@ -105,48 +142,58 @@ export default function MusicBedCard({
           <Icon
             name="music_note"
             filled
-            className={["text-base", selected ? "text-white" : "text-[#a78bfa]"].join(" ")}
+            className={[
+              "text-base",
+              selected ? "text-white" : "text-[#a78bfa]",
+            ].join(" ")}
           />
         </div>
 
-        {selected ? (
-          /* White checkmark circle for selected state */
-          <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-md">
-            <Icon name="check" className="text-sm text-[#7c3aed]" />
-          </div>
-        ) : (
-          /* Play/Pause toggle for unselected state */
+        <div className="flex items-center gap-1.5">
+          {/* Play/Pause button — always visible */}
           <button
             type="button"
             onClick={handleTogglePlay}
-            aria-label={isPlaying ? `Pause ${bed.name}` : `Play ${bed.name}`}
+            aria-label={isPlaying ? `Stop ${bed.name}` : `Preview ${bed.name}`}
             disabled={isUnavailable}
             className={[
-              "w-6 h-6 rounded-full flex items-center justify-center transition-all duration-150",
+              "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-150 relative z-10",
               isUnavailable
                 ? "bg-[#3f3f46] text-gray-500 cursor-default"
                 : isPlaying
-                ? "bg-red-500 hover:bg-red-600 text-white"
-                : "bg-[#7c3aed] hover:bg-[#6d28d9] text-white",
+                  ? selected
+                    ? "bg-white/30 hover:bg-white/40 text-white"
+                    : "bg-red-500 hover:bg-red-600 text-white"
+                  : selected
+                    ? "bg-white/20 hover:bg-white/30 text-white"
+                    : "bg-[#27272a] hover:bg-[#3f3f46] text-gray-400 hover:text-white",
             ].join(" ")}
           >
             <Icon
-              name={isUnavailable ? "remove" : isPlaying ? "pause" : "play_arrow"}
+              name={
+                isUnavailable
+                  ? "volume_off"
+                  : isPlaying
+                    ? "stop"
+                    : "play_arrow"
+              }
               filled
               className="text-sm"
             />
           </button>
-        )}
+
+          {/* Selected checkmark */}
+          {selected && (
+            <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-md">
+              <Icon name="check" className="text-sm text-[#7c3aed]" />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Track info */}
       <div className="min-w-0">
-        <p
-          className={[
-            "font-bold text-sm leading-tight truncate",
-            selected ? "text-white" : "text-white",
-          ].join(" ")}
-        >
+        <p className="font-bold text-sm leading-tight truncate text-white">
           {bed.name}
         </p>
         <p
@@ -155,13 +202,52 @@ export default function MusicBedCard({
             selected ? "text-white/70" : "text-gray-400",
           ].join(" ")}
         >
-          {bed.genre}&nbsp;&middot;&nbsp;{formatDuration(bed.durationSeconds)}
+          {bed.genre}&nbsp;&middot;&nbsp;{bed.bpm} BPM&nbsp;&middot;&nbsp;
+          {formatDuration(bed.durationSeconds)}
         </p>
       </div>
 
+      {/* Preview progress bar — shown when playing */}
+      {isPlaying && (
+        <div className="mt-1">
+          <div
+            className={[
+              "h-1 rounded-full overflow-hidden",
+              selected ? "bg-white/20" : "bg-[#27272a]",
+            ].join(" ")}
+          >
+            <div
+              className={[
+                "h-full rounded-full transition-all duration-100",
+                selected ? "bg-white/60" : "bg-[#8B5CF6]",
+              ].join(" ")}
+              style={{ width: `${previewProgress * 100}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-between mt-0.5">
+            <span
+              className={[
+                "text-[8px] font-mono",
+                selected ? "text-white/50" : "text-gray-600",
+              ].join(" ")}
+            >
+              {formatPreviewTime(previewCurrentTime)}
+            </span>
+            <span
+              className={[
+                "text-[8px] font-mono",
+                selected ? "text-white/50" : "text-gray-600",
+              ].join(" ")}
+            >
+              {formatDuration(bed.durationSeconds)}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Recommended badge */}
       {recommended && !selected && (
-        <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider text-[#a78bfa] bg-[#7c3aed]/20 border border-[#7c3aed]/30 rounded px-1.5 py-0.5">
+        <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider text-[#a78bfa] bg-[#7c3aed]/20 border border-[#7c3aed]/30 rounded px-1.5 py-0.5 pointer-events-none">
           Rec
         </span>
       )}
